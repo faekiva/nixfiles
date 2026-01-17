@@ -8,15 +8,10 @@
   };
   outputs = inputs@{ self, nixpkgs, ... }: {
     # NOTE: 'nixos' is the default hostname set by the installer
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.sachi = nixpkgs.lib.nixosSystem {
       # NOTE: Change this to aarch64-linux if you are on ARM
       system = "x86_64-linux";
       modules = [ ./configuration.nix ];
     };
-    nix.nixPath = [
-    	"nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-    	"nixos-config=${self}"
-    	"/nix/var/nix/profiles/per-user/root/channels"
-    ];
   };
 }
