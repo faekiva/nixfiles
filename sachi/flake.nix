@@ -15,8 +15,8 @@
     };
     nix.nixPath = [
     	"nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-    	nixos-config=${self}
+    	"nixos-config=${self}"
     	"/nix/var/nix/profiles/per-user/root/channels"
-    ]
+    ];
   };
 }
