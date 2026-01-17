@@ -22,7 +22,7 @@
       modules = [ ./hosts/sachi/configuration.nix ];
     };
     darwinConfigurations.batgirl = nix-darwin.lib.darwinSystem {
-      modules = [ ./batgirl ];
+      modules = [ ./hosts/batgirl/configuration.nix ];
     };
   };
 }
