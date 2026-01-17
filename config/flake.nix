@@ -5,10 +5,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     # Home manager
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # home-manager = {
+    #   url = "github:nix-community/home-manager";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = { self, nixpkgs }: {
