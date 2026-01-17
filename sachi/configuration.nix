@@ -87,6 +87,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       kdePackages.kate
+      claude-code
     #  thunderbird
     ];
     openssh.authorizedKeys.keys = [
