@@ -15,7 +15,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
-        devShells.default = pkgs.mkShell { packages = [ pkgs.bashInteractive pkgs.nixd ]; };
+        devShells.default = pkgs.mkShell { packages = [ pkgs.bashInteractive pkgs.nixd pkgs.nixfmt ]; };
       }
     );
 }
