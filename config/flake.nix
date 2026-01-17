@@ -22,6 +22,7 @@
       modules = [ ./hosts/sachi/configuration.nix ];
     };
     darwinConfigurations.batgirl = nix-darwin.lib.darwinSystem {
+      inherit self;
       modules = [ ./hosts/batgirl/configuration.nix ];
     };
   };
