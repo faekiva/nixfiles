@@ -1,10 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  ...
-}:
+# {
+#   config,
+#   lib,
+#   pkgs,
+#   modulesPath,
+#   ...
+# }:
 {
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = [ "kiva" ];

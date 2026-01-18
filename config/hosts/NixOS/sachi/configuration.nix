@@ -2,13 +2,24 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  pkgs,
+  #lib,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  # options = {
+  #   scripts.output = lib.mkOption {
+  #     type = lib.types.lines;
+  #   };
+  # };
+
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./kvm.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -42,7 +53,10 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
@@ -84,33 +98,35 @@
   users.users.kiva = {
     isNormalUser = true;
     description = "kiva";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       kdePackages.kate
       claude-code
-    #  thunderbird
+      #  thunderbird
     ];
     openssh.authorizedKeys.keys = [
-    	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC7SyWbvOfRfijVVCArZO31fa+/3/b4Kkk87dAGy4WIm"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC7SyWbvOfRfijVVCArZO31fa+/3/b4Kkk87dAGy4WIm"
     ];
   };
 
-
   security.sudo = {
-  	enable = true;
-  	extraRules = [
-  		{
-  			users = ["kiva"];
-  			commands = [
-  				{
-  					command="ALL"; 
-  					options=["NOPASSWD"];
-  				}
-  			];
-  		}
-  	];
+    enable = true;
+    extraRules = [
+      {
+        users = [ "kiva" ];
+        commands = [
+          {
+            command = "ALL";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
   };
-  
+
   # Install firefox.
   programs.firefox.enable = true;
 
@@ -120,17 +136,17 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-     micro
-     git
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    micro
+    git
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
   ];
 
   systemd.sleep.extraConfig = ''
-	AllowSuspend=no
-	AllowHibernation=no
-	AllowHybridSleep=no
-	AllowSuspendThenHibernate=no
+    	AllowSuspend=no
+    	AllowHibernation=no
+    	AllowHybridSleep=no
+    	AllowSuspendThenHibernate=no
   '';
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -145,9 +161,9 @@
 
   # Enable the OpenSSH daemon.
   services.openssh = {
-  	enable = true;
-  	settings.PasswordAuthentication = false;
- 	settings.KbdInteractiveAuthentication = false;
+    enable = true;
+    settings.PasswordAuthentication = false;
+    settings.KbdInteractiveAuthentication = false;
   };
 
   # Open ports in the firewall.
@@ -155,8 +171,6 @@
   networking.firewall.allowedUDPPorts = [ 22 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-
-  
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
