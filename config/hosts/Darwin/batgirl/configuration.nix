@@ -5,6 +5,8 @@
     pkgs.git
   ];
 
+  home-manager.users.kiva = "${flakeRoot}/home-manager/home.nix";
+
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
 

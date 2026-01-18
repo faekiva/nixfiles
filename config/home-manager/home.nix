@@ -1,3 +1,4 @@
-# { config, pkgs, lib, ... }: {
-#   home-manager.
-# }
+{ pkgs, lib, home, ... }: {
+  home.stateVersion = "25.11";
+  home.packages = [pkgs.httpie];
+}

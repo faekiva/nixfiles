@@ -17,14 +17,14 @@
       "formatting": {
         "command": ["nixfmt"]
       },
-      // "options": {
-      //   "nixos": {
-      //     "expr": "(builtins.getFlake \"${workspaceFolder}/config\").nixosConfigurations.sachi.options"
-      //   },
-      //   "nix-darwin": {
-      //     "expr": "(builtins.getFlake \"${workspaceFolder}/config\").darwinConfigurations.batgirl.options"
-      //   }
-      // }
+      "options": {
+        "nixos": {
+          "expr": "(builtins.getFlake \"${workspaceFolder}/config\").nixosConfigurations.sachi.options"
+        },
+        "nix-darwin": {
+          "expr": "(builtins.getFlake \"${workspaceFolder}/config\").darwinConfigurations.batgirl.options"
+        }
+      }
     }
   }
 }
