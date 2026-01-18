@@ -1,6 +1,7 @@
 { config, self, pkgs, ... }: {
       environment.systemPackages = [ 
           pkgs.vim
+          pkgs.git
         ];
 
       # Necessary for using flakes on this system.
