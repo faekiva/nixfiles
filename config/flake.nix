@@ -19,7 +19,7 @@
    nixosConfigurations.sachi = nixpkgs.lib.nixosSystem {
       # NOTE: Change this to aarch64-linux if you are on ARM
       system = "x86_64-linux";
-      modules = [ ./hosts/sachi/configuration.nix "./hosts/sachi/hardware-configuration.nix" ];
+      modules = [ ./hosts/sachi/configuration.nix ./hosts/sachi/kvm.nix ];
     };
     darwinConfigurations.batgirl = nix-darwin.lib.darwinSystem {
       specialArgs = { inherit self; };
