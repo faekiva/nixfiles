@@ -5,6 +5,11 @@
     pkgs.git
   ];
 
+  users.users.kiva = {
+    name = "kiva";
+    home = "/Users/kiva";
+  };
+
   home-manager.users.kiva = "${flakeRoot}/home-manager/home.nix";
 
   # Necessary for using flakes on this system.

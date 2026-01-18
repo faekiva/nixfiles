@@ -1,4 +1,13 @@
-{ pkgs, lib, home, ... }: {
+{
+  pkgs,
+  lib,
+  home,
+  ...
+}:
+{
   home.stateVersion = "25.11";
-  home.packages = [pkgs.httpie];
+  home.packages = [ 
+    pkgs.httpie 
+    pkgs.nix-diff
+  ];
 }
