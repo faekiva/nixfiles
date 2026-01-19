@@ -4,6 +4,7 @@
 
 {
   pkgs,
+  flakeRoot,
   #lib,
   ...
 }:
@@ -18,8 +19,8 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    ./kvm.nix
-    ./kde-plasma-config.nix
+    "${flakeRoot}/modules/kde-plasma-config.nix"
+    "${flakeRoot}/modules/kvm.nix"
   ];
 
   # Bootloader.
