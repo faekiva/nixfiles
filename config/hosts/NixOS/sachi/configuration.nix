@@ -4,6 +4,7 @@
 
 {
   pkgs,
+  flakeRoot,
   #lib,
   ...
 }:
@@ -111,6 +112,8 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC7SyWbvOfRfijVVCArZO31fa+/3/b4Kkk87dAGy4WIm"
     ];
   };
+
+  home-manager.users.kiva = "${flakeRoot}/home-manager/shared.nix";
 
   security.sudo = {
     enable = true;

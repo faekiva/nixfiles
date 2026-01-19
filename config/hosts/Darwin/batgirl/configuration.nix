@@ -10,7 +10,7 @@
     home = "/Users/kiva";
   };
 
-  home-manager.users.kiva = "${flakeRoot}/home-manager/home.nix";
+  home-manager.users.kiva = ./kiva-home.nix;
 
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
