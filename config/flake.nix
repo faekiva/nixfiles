@@ -39,6 +39,7 @@
         specialArgs = { inherit flakeRoot; };
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
+          specialArgs = { inherit flakeRoot; };
           modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
         };
       }) nixosHosts);
