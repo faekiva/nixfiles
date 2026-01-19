@@ -4,7 +4,6 @@
 
 {
   pkgs,
-  flakeRoot,
   #lib,
   ...
 }:
@@ -113,7 +112,7 @@
     ];
   };
 
-  home-manager.users.kiva = "${flakeRoot}/home-manager/shared.nix";
+  home-manager.users.kiva = ./kiva-home.nix;
 
   security.sudo = {
     enable = true;
