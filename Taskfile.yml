@@ -14,7 +14,7 @@ tasks:
       # bootstrap: - sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/nix-darwin-25.05#darwin-rebuild -- switch --flake .
       - cmd: sudo darwin-rebuild switch --flake .
         platforms: [darwin]
-      - cmd: sudo darwin-rebuild switch --flake .
+      - cmd: sudo nixos-rebuild switch --flake ./config
         platforms: [linux/amd64]
       - git show --pretty="" --name-only HEAD
   diff:
