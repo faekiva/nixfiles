@@ -7,6 +7,7 @@
   home.packages  = with pkgs; [
     nix-diff
     gum
+    go-task
   ];
 
   dconf.settings = {
