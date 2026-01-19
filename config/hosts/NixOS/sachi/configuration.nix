@@ -19,8 +19,8 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    "${flakeRoot}/modules/kde-plasma-config.nix"
-    "${flakeRoot}/modules/kvm.nix"
+    "${flakeRoot}/modules/hereafter/kde-plasma-config.nix"
+    "${flakeRoot}/modules/hereafter/kvm.nix"
   ];
 
   # Bootloader.
@@ -54,8 +54,8 @@
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
-  
-  kvm.users = ["kiva"];
+
+  hereafter.kvm.users = ["kiva"];
 
   nix.settings.experimental-features = [
     "nix-command"
