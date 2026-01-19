@@ -19,6 +19,7 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./kvm.nix
+    ./kde-plasma-config.nix
   ];
 
   # Bootloader.

@@ -4,9 +4,9 @@
 }:
 {
   home.stateVersion = "25.11";
-  home.packages = [
-    pkgs.nix-diff
-    pkgs.gum
+  home.packages  = with pkgs; [
+    nix-diff
+    gum
   ];
 
   dconf.settings = {
