@@ -6,7 +6,7 @@ version: '3'
 tasks:
   internal-deploy:
     internal: true
-    prompt: Do you want to deploy this derivation? This will also add all nix files to git.
+    prompt: Do you want to deploy this derivation? This will also `git add -A` and commit.
     dir: ./config
     cmds:
       - git add -A
@@ -16,6 +16,8 @@ tasks:
         platforms: [darwin]
       - cmd: sudo darwin-rebuild switch --flake .
         platforms: [linux/amd64]
+      - cmd: rm result
+        silent: true
       - git show --pretty="" --name-only HEAD
   diff:
     cmds:
