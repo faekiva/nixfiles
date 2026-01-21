@@ -18,6 +18,7 @@
       enter_accept = true;
       sync.records = true;
       search_mode = "fuzzy";
+      forceOverwriteSettings = true;
     };
   };
 }
