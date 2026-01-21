@@ -23,6 +23,9 @@
         },
         "nix-darwin": {
           "expr": "(builtins.getFlake \"${workspaceFolder}/config\").darwinConfigurations.batgirl.options"
+        },
+        "home-manager": {
+          "expr": "(builtins.getFlake \"${workspaceFolder}/config\").darwinConfigurations.batgirl.options.home-manager.users.type.getSubOptions []"
         }
       }
     }
