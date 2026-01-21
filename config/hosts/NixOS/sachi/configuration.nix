@@ -10,6 +10,7 @@
 }:
 
 {
+  nix.package = pkgs.lixPackageSets.stable.lix;
   # options = {
   #   scripts.output = lib.mkOption {
   #     type = lib.types.lines;
