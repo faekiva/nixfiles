@@ -5,6 +5,7 @@
 {
   programs.atuin = {
     enable = true;
+    forceOverwriteSettings = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
     enableNushellIntegration = true;
@@ -18,7 +19,7 @@
       enter_accept = true;
       sync.records = true;
       search_mode = "fuzzy";
-      forceOverwriteSettings = true;
     };
+    
   };
 }
