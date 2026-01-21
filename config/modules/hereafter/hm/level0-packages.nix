@@ -1,13 +1,13 @@
 {
   pkgs,
+  lib,
   ...
 }:
 {
-  home.packages = [ 
+  home.packages = [
     pkgs.htop
-    pkgs.busybox
     pkgs.fd
     pkgs.git
     pkgs.micro
-  ];
+  ] ++ lib.optional pkgs.stdenv.isLinux pkgs.busybox;
 }
