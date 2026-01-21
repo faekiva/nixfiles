@@ -3,7 +3,7 @@
   ...
 }:
 {
-  imports = ["./level0-packages.nix" "./atuin.nix"];
+  imports = [./level0-packages.nix ./atuin.nix];
 
   home.packages = [ 
     pkgs.nix-diff
