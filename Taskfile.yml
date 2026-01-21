@@ -9,8 +9,9 @@ tasks:
     prompt: Do you want to deploy this derivation? This will also `git add -A` and commit.
     dir: ./config
     cmds:
-      - git add -A
-      - git commit -m "Deploy"
+      - cmd: git add -A
+      - cmd: git commit -m "Deploy"
+        ignore_error: true
       # bootstrap: - sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/nix-darwin-25.05#darwin-rebuild -- switch --flake .
       - cmd: sudo darwin-rebuild switch --flake .
         platforms: [darwin]
