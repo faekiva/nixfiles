@@ -10,6 +10,7 @@
     home = "/Users/kiva";
   };
 
+  home-manager.extraSpecialArgs = { inherit flakeRoot; };
   home-manager.users.kiva = ./kiva-home.nix;
 
   # Necessary for using flakes on this system.

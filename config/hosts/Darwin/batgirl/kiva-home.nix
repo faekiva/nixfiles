@@ -1,11 +1,9 @@
 {
   pkgs,
+  flakeRoot,
   ...
 }:
 {
   home.stateVersion = "25.11";
-  home.packages = [ 
-    pkgs.nix-diff
-    pkgs.gum
-  ];
+  imports =  ["${flakeRoot}/modules/hereafter/hm/level1-packages.nix" {inherit flakeRoot;}];
 }
