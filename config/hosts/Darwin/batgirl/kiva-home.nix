@@ -8,5 +8,6 @@
   imports = [ "${flakeRoot}/modules/hereafter/hm/level1-packages.nix" ];
   home.packages = [
     pkgs.nickel
+    pkgs.nls
   ];
 }
