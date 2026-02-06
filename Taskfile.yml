@@ -53,10 +53,7 @@ tasks:
       - cmd: git commit -m "Deploy"
         ignore_error: true
       # bootstrap: - sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/nix-darwin-25.05#darwin-rebuild -- switch --flake .
-      - cmd: sudo darwin-rebuild switch --flake ".#$NIXFILES_HOSTNAME"
-        platforms: [darwin]
-      - cmd: sudo nixos-rebuild switch --flake ".#$NIXFILES_HOSTNAME"
-        platforms: [linux/amd64]
+      - cmd: scripts/deploy.sh
       - git show --pretty="" --name-only HEAD
   update-cline:
     desc: Update the cline CLI package to the latest npm version

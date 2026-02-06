@@ -5,9 +5,9 @@ set -euo pipefail
 declare FLAKE_DERIVATION
 
 if [[ "$(uname)" == "Darwin" ]]; then
-    FLAKE_DERIVATION=$(nix build ./config#darwinConfigurations.$NIXFILES_HOSTNAME.system --print-out-paths --show-trace)
+    FLAKE_DERIVATION=$(nix build .#darwinConfigurations.$NIXFILES_HOSTNAME.system --print-out-paths --show-trace)
 else
-    FLAKE_DERIVATION=$(nix build ./config#nixosConfigurations.$NIXFILES_HOSTNAME.system --print-out-paths --show-trace)
+    FLAKE_DERIVATION=$(nix build .#nixosConfigurations.$NIXFILES_HOSTNAME.system --print-out-paths --show-trace)
 fi
 
 echo "FLAKE DERIVATION: $FLAKE_DERIVATION"
