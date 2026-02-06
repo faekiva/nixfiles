@@ -2,8 +2,48 @@
 
 version: '3'
 
-
 tasks:
+  ensure-hostname:
+    desc: Create .hostname file if it doesn't exist
+    internal: true
+    silent: true
+    status:
+      - test -f .hostname
+    cmds:
+      - |
+        if [[ -n "$PROMPT_HOST" && "$PROMPT_HOST" =~ ^[0-9A-Za-z-]+$ ]]; then
+          echo "$PROMPT_HOST" > .hostname
+          echo "Created .hostname from PROMPT_HOST: $PROMPT_HOST"
+        else
+          # Determine OS-specific hosts directory
+          if [[ "$(uname)" == "Darwin" ]]; then
+            HOSTS_DIR="config/hosts/Darwin"
+          else
+            HOSTS_DIR="config/hosts/NixOS"
+          fi
+
+          # Get list of existing host folders
+          HOSTS=$(ls -1 "$HOSTS_DIR" 2>/dev/null | sort)
+
+          # Build choice list with "Other" option
+          CHOICE=$(echo -e "${HOSTS}\nOther (create new folder)" | gum choose --header "Select hostname")
+
+          if [[ "$CHOICE" == "Other (create new folder)" ]]; then
+            HOSTNAME=$(gum input --placeholder "Enter new hostname")
+            if [[ -n "$HOSTNAME" ]]; then
+              mkdir -p "$HOSTS_DIR/$HOSTNAME"
+              echo "Created new host folder: $HOSTS_DIR/$HOSTNAME"
+            fi
+          else
+            HOSTNAME="$CHOICE"
+          fi
+
+          echo "$HOSTNAME" > .hostname
+          echo "Created .hostname: $HOSTNAME"
+        fi
+        echo "You'll need to \`direnv allow\` before deploying."
+        exit 1
+
   internal-deploy:
     internal: true
     prompt: Do you want to deploy this derivation? This will also `git add -A` and commit.
@@ -13,9 +53,9 @@ tasks:
       - cmd: git commit -m "Deploy"
         ignore_error: true
       # bootstrap: - sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/nix-darwin-25.05#darwin-rebuild -- switch --flake .
-      - cmd: sudo darwin-rebuild switch --flake .
+      - cmd: sudo darwin-rebuild switch --flake ".#$NIXFILES_HOSTNAME"
         platforms: [darwin]
-      - cmd: sudo nixos-rebuild switch --flake .
+      - cmd: sudo nixos-rebuild switch --flake ".#$NIXFILES_HOSTNAME"
         platforms: [linux/amd64]
       - git show --pretty="" --name-only HEAD
   update-cline:
@@ -24,8 +64,12 @@ tasks:
       - bash config/modules/hereafter/npm/update-cline.sh
   diff:
     cmds:
-      - ./diff.sh
+      - ./scripts/diff.sh
+      
   deploy:
+    desc: show plan for update, then apply it if accepted
+    deps:
+      - ensure-hostname
     cmds:
       - task: diff
       - task: internal-deploy
