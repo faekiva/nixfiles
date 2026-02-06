@@ -15,7 +15,19 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
-        devShells.default = pkgs.mkShell { packages = [ pkgs.bashInteractive pkgs.nixd pkgs.nixfmt ]; };
+        devShells.default = pkgs.mkShell { 
+          packages = [
+            pkgs.bashInteractive
+            pkgs.nixd
+            pkgs.nixfmt
+            pkgs.nix-diff
+            # update-cline.sh dependencies
+            pkgs.curl
+            pkgs.jq
+            pkgs.nodejs
+            pkgs.prefetch-npm-deps
+          ]; 
+        };
       }
     );
 }

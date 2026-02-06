@@ -18,9 +18,13 @@ tasks:
       - cmd: sudo nixos-rebuild switch --flake ./config
         platforms: [linux/amd64]
       - git show --pretty="" --name-only HEAD
+  update-cline:
+    desc: Update the cline CLI package to the latest npm version
+    cmds:
+      - bash config/modules/hereafter/npm/update-cline.sh
   diff:
     cmds:
-      - ./diff.sh  
+      - ./diff.sh
   deploy:
     cmds:
       - task: diff
