@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cd ./config
+
 if [[ "$(uname)" == "Darwin" ]]; then
     if command -v darwin-rebuild &>/dev/null; then
         sudo darwin-rebuild switch --flake ".#$NIXFILES_HOSTNAME"
