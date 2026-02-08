@@ -5,7 +5,7 @@ declare FLAKE_DERIVATION
 if [ "$PROMPT_HOST" = 'batgirl' ]; then
     FLAKE_DERIVATION=$(nix build ./config#darwinConfigurations.batgirl.system --print-out-paths --show-trace)
 elif [ "$(uname -n)" = 'sachi' ]; then
-    FLAKE_DERIVATION=$(nix build ./config#nixosConfigurations.sachi.system --print-out-paths --show-trace)
+    FLAKE_DERIVATION=$(nix build ./config#nixosConfigurations.sachi.config.system.build.toplevel --print-out-paths --show-trace)
 else
     echo "couldn't identify machine"
     exit 1
