@@ -20,8 +20,8 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    "${flakeRoot}/modules/hereafter/kde-plasma-config.nix" {inherit flakeRoot;}
-    "${flakeRoot}/modules/hereafter/kvm.nix" {inherit flakeRoot;}
+    "${flakeRoot}/modules/hereafter/kde-plasma-config.nix"
+    "${flakeRoot}/modules/hereafter/kvm.nix"
   ];
 
   # Bootloader.

@@ -36,7 +36,6 @@
     {
       nixosConfigurations = builtins.listToAttrs (map (host: {
         name = host;
-        specialArgs = { inherit flakeRoot; };
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit flakeRoot; };
