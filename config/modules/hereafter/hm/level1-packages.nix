@@ -12,5 +12,6 @@
     pkgs.bat
     pkgs.fzf
     pkgs.zsh
+    pkgs.go-task
   ];
 }
