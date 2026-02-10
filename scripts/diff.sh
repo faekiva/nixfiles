@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+cd ./config
+
 declare FLAKE_DERIVATION
 
 if [[ "$(uname)" == "Darwin" ]]; then
