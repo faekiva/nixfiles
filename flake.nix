@@ -21,6 +21,7 @@
             pkgs.nixd
             pkgs.nixfmt
             pkgs.nix-diff
+            pkgs.nh
             # update-cline.sh dependencies
             pkgs.curl
             pkgs.jq

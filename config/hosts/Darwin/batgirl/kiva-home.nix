@@ -12,5 +12,6 @@
   home.packages = [
     pkgs.nickel
     pkgs.nls
+    pkgs.ffmpeg-full
   ];
 }
