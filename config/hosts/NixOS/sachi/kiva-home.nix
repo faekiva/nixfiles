@@ -5,13 +5,14 @@
 }:
 {
   home.stateVersion = "25.11";
-  # home.packages  = with pkgs; [
-
-  # ];
+  home.packages = [
+    pkgs.ffmpeg-full
+  ];
 
   imports = [ 
     "${flakeRoot}/modules/hereafter/hm/level1-packages.nix" 
     "${flakeRoot}/modules/hereafter/hm/ai-packages.nix"
+    "${flakeRoot}/modules/hereafter/prodigy-mounts.nix"
   ];
 
   dconf.settings = {
