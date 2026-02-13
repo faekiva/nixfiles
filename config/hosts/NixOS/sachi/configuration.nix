@@ -21,7 +21,8 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     "${flakeRoot}/modules/hereafter/kde-plasma-config.nix"
-    "${flakeRoot}/modules/hereafter/kvm.nix"
+    "${flakeRoot}/modules/hereafter/kvm.nix" 
+    "${flakeRoot}/modules/hereafter/prodigy-mounts.nix"
   ];
 
   # Bootloader.

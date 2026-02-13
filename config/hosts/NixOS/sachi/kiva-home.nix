@@ -12,7 +12,6 @@
   imports = [ 
     "${flakeRoot}/modules/hereafter/hm/level1-packages.nix" 
     "${flakeRoot}/modules/hereafter/hm/ai-packages.nix"
-    "${flakeRoot}/modules/hereafter/prodigy-mounts.nix"
   ];
 
   dconf.settings = {
