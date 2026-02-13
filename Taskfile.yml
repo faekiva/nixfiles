@@ -50,9 +50,9 @@ tasks:
     deps:
       - ensure-hostname
     cmds:
-      - cmd: NH_NIXPKGS_ALLOW_UNFREE=1 nh os switch ./config --ask -H {{ .NIX_HOSTNAME }}
+      - cmd: nh os switch ./config --ask -H {{ .NIX_HOSTNAME }}
         platforms:
           - linux
-      - cmd: NH_NIXPKGS_ALLOW_UNFREE=1 nh darwin switch ./config --ask -H {{ .NIX_HOSTNAME }}
+      - cmd: nh darwin switch ./config --ask -H {{ .NIX_HOSTNAME }}
         platforms:
           - darwin

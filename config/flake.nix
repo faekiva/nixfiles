@@ -34,6 +34,9 @@
       flakeRoot = self;
     in
     {
+      nixpkgs.config.allowUnfree = true;
+      nixpkgs.allowUnfreePredicate = _: true;
+
       nixosConfigurations = builtins.listToAttrs (map (host: {
         name = host;
         value = nixpkgs.lib.nixosSystem {

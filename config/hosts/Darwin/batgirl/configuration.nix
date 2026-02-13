@@ -11,11 +11,11 @@
     home = "/Users/kiva";
   };
 
-  nixpkgs.config.allowUnfree = true;
-
   home-manager.extraSpecialArgs = { inherit flakeRoot; };
   home-manager.users.kiva = ./kiva-home.nix;
-
+  home-manager.useGlobalPkgs = true;
+  nixpkgs.config.allowUnfree = true;
+  
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
 

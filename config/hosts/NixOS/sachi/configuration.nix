@@ -16,7 +16,6 @@
   #     type = lib.types.lines;
   #   };
   # };
-  
 
   imports = [
     # Include the results of the hardware scan.
@@ -141,6 +140,7 @@
   programs.firefox.enable = true;
 
   # Allow unfree packages
+  home-manager.useGlobalPkgs = true;
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
