@@ -38,7 +38,7 @@
         name = host;
         specialArgs = { inherit flakeRoot; };
         value = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+          # system = "x86_64-linux";
           specialArgs = { inherit flakeRoot; };
           modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
         };
@@ -46,6 +46,7 @@
 
       darwinConfigurations = builtins.listToAttrs (map (host: {
         name = host;
+        specialArgs = { inherit flakeRoot; };
         value = nix-darwin.lib.darwinSystem {
           specialArgs = { inherit flakeRoot; };
           modules = [ ./hosts/Darwin/${host}/configuration.nix home-manager.darwinModules.home-manager ];
