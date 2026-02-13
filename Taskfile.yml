@@ -41,30 +41,18 @@ tasks:
           echo "$HOSTNAME" > .hostname
           echo "Created .hostname: $HOSTNAME"
         fi
-        echo "You'll need to \`direnv allow\` before deploying."
-        exit 1
-
-  internal-deploy:
-    internal: true
-    prompt: Do you want to deploy this derivation? This will also `git add -A` and commit.
-    cmds:
-      - cmd: git add -A
-      - cmd: git commit -m "Deploy"
-        ignore_error: true
-      - cmd: scripts/deploy.sh
-      - git show --pretty="" --name-only HEAD
-  update-cline:
-    desc: Update the cline CLI package to the latest npm version
-    cmds:
-      - bash config/modules/hereafter/npm/update-cline.sh
-  diff:
-    cmds:
-      - ./scripts/diff.sh
       
   deploy:
     desc: show plan for update, then apply it if accepted
+    vars:
+      NIX_HOSTNAME:
+        sh: cat .hostname 
     deps:
       - ensure-hostname
     cmds:
-      - task: diff
-      - task: internal-deploy
+      - cmd: NH_NIXPKGS_ALLOW_UNFREE=1 nh os switch ./config --ask -H {{ .NIX_HOSTNAME }}
+        platforms:
+          - linux
+      - cmd: NH_NIXPKGS_ALLOW_UNFREE=1 nh darwin switch ./config --ask -H {{ .NIX_HOSTNAME }}
+        platforms:
+          - darwin

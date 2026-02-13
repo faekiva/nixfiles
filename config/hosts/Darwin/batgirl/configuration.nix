@@ -11,6 +11,8 @@
     home = "/Users/kiva";
   };
 
+  nixpkgs.config.allowUnfree = true;
+
   home-manager.extraSpecialArgs = { inherit flakeRoot; };
   home-manager.users.kiva = ./kiva-home.nix;
 
