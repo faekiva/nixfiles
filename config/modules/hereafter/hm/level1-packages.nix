@@ -3,7 +3,7 @@
   ...
 }:
 {
-  imports = [./level0-packages.nix ./atuin.nix ./direnv.nix];
+  imports = [./level0-packages.nix ./atuin.nix ./direnv.nix ];
 
   home.packages = [ 
     pkgs.gum
