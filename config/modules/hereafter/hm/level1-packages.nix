@@ -13,5 +13,6 @@
     pkgs.fzf
     pkgs.zsh
     pkgs.go-task
+    pkgs.tmux
   ];
 }
