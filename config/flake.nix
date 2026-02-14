@@ -32,6 +32,7 @@
       darwinHosts = hostDirs ./hosts/Darwin;
       nixosHosts = hostDirs ./hosts/NixOS;
       flakeRoot = self;
+      repoRoot = "${self}/..";
     in
     {
       nixpkgs.config.allowUnfree = true;
@@ -41,16 +42,16 @@
         name = host;
         value = nixpkgs.lib.nixosSystem {
           # system = "x86_64-linux";
-          specialArgs = { inherit flakeRoot; };
+          specialArgs = { inherit flakeRoot repoRoot; };
           modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
         };
       }) nixosHosts);
 
       darwinConfigurations = builtins.listToAttrs (map (host: {
         name = host;
-        specialArgs = { inherit flakeRoot; };
+        specialArgs = { inherit flakeRoot repoRoot; };
         value = nix-darwin.lib.darwinSystem {
-          specialArgs = { inherit flakeRoot; };
+          specialArgs = { inherit flakeRoot repoRoot; };
           modules = [ ./hosts/Darwin/${host}/configuration.nix home-manager.darwinModules.home-manager ];
         };
       }) darwinHosts);
