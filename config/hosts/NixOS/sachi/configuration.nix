@@ -5,6 +5,7 @@
 {
   pkgs,
   flakeRoot,
+  direnv-instant,
   #lib,
   ...
 }:
@@ -119,7 +120,7 @@
     ];
   };
 
-  home-manager.extraSpecialArgs = { inherit flakeRoot; };
+  home-manager.extraSpecialArgs = { inherit flakeRoot direnv-instant; };
   home-manager.users.kiva = ./kiva-home.nix;
 
   security.sudo = {

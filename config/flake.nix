@@ -11,6 +11,8 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    direnv-instant.url = "github:Mic92/direnv-instant";
   };
 
   outputs =
@@ -19,6 +21,7 @@
       nixpkgs,
       nix-darwin,
       home-manager,
+      direnv-instant,
     }:
     let
       # Get all directory names from a path
@@ -42,16 +45,16 @@
         name = host;
         value = nixpkgs.lib.nixosSystem {
           # system = "x86_64-linux";
-          specialArgs = { inherit flakeRoot repoRoot; };
+          specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
           modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
         };
       }) nixosHosts);
 
       darwinConfigurations = builtins.listToAttrs (map (host: {
         name = host;
-        specialArgs = { inherit flakeRoot repoRoot; };
+        specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
         value = nix-darwin.lib.darwinSystem {
-          specialArgs = { inherit flakeRoot repoRoot; };
+          specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
           modules = [ ./hosts/Darwin/${host}/configuration.nix home-manager.darwinModules.home-manager ];
         };
       }) darwinHosts);

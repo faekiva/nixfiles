@@ -1,11 +1,13 @@
-
-
-
 {
   pkgs,
+  direnv-instant,
   ...
 }:
 {
+  home.packages = [
+    direnv-instant.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+
   programs = {
     direnv = {
       enable = true;

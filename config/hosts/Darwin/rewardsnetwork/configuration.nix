@@ -1,4 +1,4 @@
-{ flakeRoot, pkgs, ... }:
+{ flakeRoot, pkgs, direnv-instant, ... }:
 {
   nix.package = pkgs.lixPackageSets.stable.lix;
   environment.systemPackages = [
@@ -10,7 +10,7 @@
     home = "/Users/khilgenberg";
   };
 
-  home-manager.extraSpecialArgs = { inherit flakeRoot; };
+  home-manager.extraSpecialArgs = { inherit flakeRoot direnv-instant; };
   home-manager.users.kiva = ./kiva-home.nix;
   home-manager.useGlobalPkgs = true;
   nixpkgs.config.allowUnfree = true;
