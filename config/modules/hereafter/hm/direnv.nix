@@ -1,11 +1,11 @@
 {
+  inputs,
   pkgs,
-  direnv-instant,
   ...
 }:
 {
   home.packages = [
-    direnv-instant.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.direnv-instant.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   programs = {

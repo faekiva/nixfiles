@@ -3,13 +3,11 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 {
+  inputs,
   pkgs,
-  flakeRoot,
-  direnv-instant,
   #lib,
   ...
 }:
-
 {
   nix.package = pkgs.lixPackageSets.stable.lix;
   # options = {
@@ -21,9 +19,9 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    "${flakeRoot}/modules/hereafter/kde-plasma-config.nix"
-    "${flakeRoot}/modules/hereafter/kvm.nix" 
-    "${flakeRoot}/modules/hereafter/prodigy-mounts.nix"
+    "${inputs.flakeRoot}/modules/hereafter/kde-plasma-config.nix"
+    "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
+    "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
   ];
 
   # Bootloader.
@@ -120,7 +118,7 @@
     ];
   };
 
-  home-manager.extraSpecialArgs = { inherit flakeRoot direnv-instant; };
+  home-manager.extraSpecialArgs = { inherit inputs; };
   home-manager.users.kiva = ./kiva-home.nix;
 
   security.sudo = {

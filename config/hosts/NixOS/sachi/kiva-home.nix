@@ -1,6 +1,6 @@
 {
+  inputs,
   pkgs,
-  flakeRoot,
   ...
 }:
 {
@@ -9,9 +9,9 @@
     pkgs.ffmpeg-full
   ];
 
-  imports = [ 
-    "${flakeRoot}/modules/hereafter/hm/level1-packages.nix" 
-    "${flakeRoot}/modules/hereafter/hm/ai-packages.nix"
+  imports = [
+    "${inputs.flakeRoot}/modules/hereafter/hm/level1-packages.nix"
+    "${inputs.flakeRoot}/modules/hereafter/hm/ai-packages.nix"
   ];
 
   dconf.settings = {

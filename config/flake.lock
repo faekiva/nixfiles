@@ -41,6 +41,22 @@
         "type": "github"
       }
     },
+    "fzf-tab": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770118187,
+        "narHash": "sha256-gatFp2kjyqaqi8hu0UWPDtQAy+X2VmyYNPP4aiNDdHg=",
+        "owner": "Aloxaf",
+        "repo": "fzf-tab",
+        "rev": "747c15de85a38748b28c29ac65616137dbb4c8b6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Aloxaf",
+        "repo": "fzf-tab",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -118,6 +134,7 @@
     "root": {
       "inputs": {
         "direnv-instant": "direnv-instant",
+        "fzf-tab": "fzf-tab",
         "home-manager": "home-manager",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs_2"

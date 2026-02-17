@@ -13,15 +13,17 @@
     };
 
     direnv-instant.url = "github:Mic92/direnv-instant";
+    fzf-tab.url = "github:Aloxaf/fzf-tab";
+    fzf-tab.flake = false;
   };
 
   outputs =
-    {
+    inputs@{
       self,
       nixpkgs,
       nix-darwin,
       home-manager,
-      direnv-instant,
+      ...
     }:
     let
       # Get all directory names from a path
@@ -34,8 +36,12 @@
 
       darwinHosts = hostDirs ./hosts/Darwin;
       nixosHosts = hostDirs ./hosts/NixOS;
-      flakeRoot = self;
-      repoRoot = "${self}/..";
+
+      # Extend inputs with computed values
+      inputs' = inputs // {
+        flakeRoot = self;
+        repoRoot = "${self}/..";
+      };
     in
     {
       nixpkgs.config.allowUnfree = true;
@@ -45,16 +51,15 @@
         name = host;
         value = nixpkgs.lib.nixosSystem {
           # system = "x86_64-linux";
-          specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
+          specialArgs = { inputs = inputs'; };
           modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
         };
       }) nixosHosts);
 
       darwinConfigurations = builtins.listToAttrs (map (host: {
         name = host;
-        specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
         value = nix-darwin.lib.darwinSystem {
-          specialArgs = { inherit flakeRoot repoRoot direnv-instant; };
+          specialArgs = { inputs = inputs'; };
           modules = [ ./hosts/Darwin/${host}/configuration.nix home-manager.darwinModules.home-manager ];
         };
       }) darwinHosts);
