@@ -22,6 +22,8 @@
     "${inputs.flakeRoot}/modules/hereafter/kde-plasma-config.nix"
     "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
     "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
+    "${inputs.flakeRoot}/modules/services/jellyfin.nix"
+    "${inputs.flakeRoot}/modules/services/tailscale.nix"
   ];
 
   # Bootloader.
