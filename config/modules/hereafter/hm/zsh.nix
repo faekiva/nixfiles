@@ -16,9 +16,6 @@
 
     # Gradually migrate your config here
     initExtra = ''
-      # direnv-instant (already migrated!)
-      eval "$(${inputs.direnv-instant}/bin/direnv-instant hook zsh)"
-
       # Source your existing manual config during transition
       # TODO: Gradually move sections from this file into proper nix options above
       if [ -f "$HOME/code/no-remote/dotfiles-local/.zshrc" ]; then

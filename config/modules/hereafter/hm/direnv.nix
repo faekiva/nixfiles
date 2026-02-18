@@ -4,8 +4,8 @@
   ...
 }:
 {
-  home.packages = [
-    inputs.direnv-instant.packages.${pkgs.stdenv.hostPlatform.system}.default
+  imports = [
+    inputs.direnv-instant.homeModules.direnv-instant
   ];
 
   programs = {
@@ -17,5 +17,9 @@
     };
     # bash.enable = true; # see note on other shells below
     # zsh.enable = true;
+
+    direnv-instant = {
+      enable = true;
+    };
   };
 }
