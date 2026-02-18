@@ -1,4 +1,4 @@
-{ flakeRoot, pkgs, direnv-instant, ... }:
+{ inputs, pkgs, ... }:
 {
   nix.package = pkgs.lixPackageSets.stable.lix;
   environment.systemPackages = [
@@ -10,7 +10,7 @@
     home = "/Users/khilgenberg";
   };
 
-  home-manager.extraSpecialArgs = { inherit flakeRoot direnv-instant; };
+  home-manager.extraSpecialArgs = { inherit inputs; };
   home-manager.users.kiva = ./kiva-home.nix;
   home-manager.useGlobalPkgs = true;
   nixpkgs.config.allowUnfree = true;
@@ -22,7 +22,7 @@
   # programs.fish.enable = true;
 
   # Set Git commit hash for darwin-version.
-  system.configurationRevision = flakeRoot.rev or flakeRoot.dirtyRev or null;
+  system.configurationRevision = inputs.flakeRoot.rev or inputs.flakeRoot.dirtyRev or null;
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
