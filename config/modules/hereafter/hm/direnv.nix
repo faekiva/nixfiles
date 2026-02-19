@@ -20,6 +20,7 @@
 
     direnv-instant = {
       enable = true;
+      enableIterm2Integration = true;
     };
   };
 }
