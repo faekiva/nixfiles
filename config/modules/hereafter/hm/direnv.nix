@@ -18,9 +18,9 @@
     # bash.enable = true; # see note on other shells below
     # zsh.enable = true;
 
-    direnv-instant = {
-      enable = true;
+    #direnv-instant = {
+     # enable = true;
       # enableIterm2Integration = true;
-    };
+    #};
   };
 }
