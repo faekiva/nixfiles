@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    direnv-instant.url = "github:faekiva/direnv-instant/iterm2";
+    direnv-instant.url = "github:Mic92/direnv-instant";
     fzf-tab.url = "github:Aloxaf/fzf-tab";
     fzf-tab.flake = false;
   };
