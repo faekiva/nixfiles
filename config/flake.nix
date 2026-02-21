@@ -15,8 +15,6 @@
     direnv-instant.url = "github:Mic92/direnv-instant";
     fzf-tab.url = "github:Aloxaf/fzf-tab";
     fzf-tab.flake = false;
-
-    vscode-server.url = "github:nix-community/nixos-vscode-server";
   };
 
   outputs =

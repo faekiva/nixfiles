@@ -23,7 +23,6 @@
     "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
     "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
     "${inputs.flakeRoot}/modules/services/tailscale.nix"
-    "${inputs.flakeRoot}/modules/hereafter/vscode-server.nix"
     "${inputs.flakeRoot}/modules/services/docker.nix"
   ];
 

@@ -60,4 +60,9 @@ tasks:
   deploy-sachi:
     desc: Deploy NixOS configuration to sachi remotely over SSH
     cmds:
-      - nh os -v switch --target-host sachi --hostname sachi ./config
+      - nh os switch  --target-host sachi --build-host sachi --hostname sachi ./config
+
+  deploy-sachi-cacheless:
+    desc: Deploy NixOS configuration to sachi remotely over SSH, without using cache.nixos.org
+    cmds:
+      - NIX_CONFIG="substituters = " nh os switch --target-host sachi --build-host sachi --hostname sachi ./config
