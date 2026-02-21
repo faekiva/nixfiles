@@ -46,7 +46,7 @@ tasks:
     desc: show plan for update, then apply it if accepted
     vars:
       NIX_HOSTNAME:
-        sh: cat .hostname 
+        sh: cat .hostname
     deps:
       - ensure-hostname
     cmds:
@@ -56,3 +56,8 @@ tasks:
       - cmd: nh darwin switch ./config --ask -H {{ .NIX_HOSTNAME }}
         platforms:
           - darwin
+
+  deploy-sachi:
+    desc: Deploy NixOS configuration to sachi remotely over SSH
+    cmds:
+      - nh os -v switch --target-host sachi --hostname sachi ./config
