@@ -10,6 +10,7 @@
 }:
 {
   nix.package = pkgs.lixPackageSets.stable.lix;
+
   # options = {
   #   scripts.output = lib.mkOption {
   #     type = lib.types.lines;
@@ -19,14 +20,9 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    "${inputs.flakeRoot}/modules/hereafter/kde-plasma-config.nix"
-    "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
-    "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
-    "${inputs.flakeRoot}/modules/services/tailscale.nix"
-    "${inputs.flakeRoot}/modules/services/docker.nix"
-    "${inputs.flakeRoot}/modules/services/mattermost.nix"
-    "${inputs.flakeRoot}/modules/services/immich.nix"
   ];
+  networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.allowedUDPPorts = [ 22 ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -181,9 +177,18 @@
     settings.KbdInteractiveAuthentication = false;
   };
 
+  import = [   
+    "${inputs.flakeRoot}/modules/hereafter/kde-plasma-config.nix"
+    "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
+    "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
+    "${inputs.flakeRoot}/modules/services/tailscale.nix"
+    "${inputs.flakeRoot}/modules/services/docker.nix"
+    "${inputs.flakeRoot}/modules/services/mattermost.nix"
+    "${inputs.flakeRoot}/modules/services/immich.nix"
+  ];
+
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  networking.firewall.allowedUDPPorts = [ 22 ];
+
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
