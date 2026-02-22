@@ -24,6 +24,8 @@
     "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
     "${inputs.flakeRoot}/modules/services/tailscale.nix"
     "${inputs.flakeRoot}/modules/services/docker.nix"
+    "${inputs.flakeRoot}/modules/services/mattermost.nix"
+    "${inputs.flakeRoot}/modules/services/immich.nix"
   ];
 
   # Bootloader.
