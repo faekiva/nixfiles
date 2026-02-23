@@ -22,8 +22,10 @@
     "${inputs.flakeRoot}/modules/hereafter/kde-plasma-config.nix"
     "${inputs.flakeRoot}/modules/hereafter/kvm.nix"
     "${inputs.flakeRoot}/modules/hereafter/prodigy-mounts.nix"
-    "${inputs.flakeRoot}/modules/services/jellyfin.nix"
     "${inputs.flakeRoot}/modules/services/tailscale.nix"
+    "${inputs.flakeRoot}/modules/services/docker.nix"
+    "${inputs.flakeRoot}/modules/services/mattermost.nix"
+    "${inputs.flakeRoot}/modules/services/immich.nix"
   ];
 
   # Bootloader.
@@ -58,7 +60,7 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  hereafter.kvm.users = ["kiva"];
+  hereafter.kvm.users = [ "kiva" ];
 
   nix.settings.experimental-features = [
     "nix-command"
@@ -109,6 +111,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "docker"
     ];
     packages = with pkgs; [
       kdePackages.kate
@@ -180,9 +183,9 @@
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 22 ];
-  networking.firewall.allowedUDPPorts = [ 22 ];
+  # networking.firewall.allowedUDPPorts = [ ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+   networking.firewall.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
