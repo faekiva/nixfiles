@@ -8,6 +8,10 @@
   networking.firewall.allowedTCPPorts = [ 8065 ];
 
   containers.mattermost = {
+    autoStart = true;
+    privateNetwork = true;
+    hostAddress = "192.168.67.1";
+    localAddress = "192.168.67.2";
     config =
       {
         config,
