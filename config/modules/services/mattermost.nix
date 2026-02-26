@@ -23,7 +23,7 @@
           port = 8065;
         };
 
-        system.stateVersion = 25.11;
+        system.stateVersion = "25.11";
         networking = {
           firewall = {
             enable = true;
