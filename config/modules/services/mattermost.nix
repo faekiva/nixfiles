@@ -35,5 +35,10 @@
           };
         };
       };
+      forwardPorts = [{
+        containerPort = 8065;
+        hostPort = 8065;
+        protocol = "tcp";
+      }];
   };
 }

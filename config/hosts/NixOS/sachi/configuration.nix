@@ -141,6 +141,11 @@
     ];
   };
 
+  # Allox nix container internet access
+  networking.nat.enable = true;
+  networking.nat.internalInterfaces = [ "ve-*" ];
+  networking.nat.externalInterface = "enp1s0"; 
+
   # Install firefox.
   programs.firefox.enable = true;
 
@@ -185,7 +190,7 @@
   networking.firewall.allowedTCPPorts = [ 22 ];
   # networking.firewall.allowedUDPPorts = [ ];
   # Or disable the firewall altogether.
-   networking.firewall.enable = true;
+  networking.firewall.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
