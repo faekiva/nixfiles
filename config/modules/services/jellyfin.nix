@@ -19,12 +19,15 @@
 
   virtualisation.oci-containers.backend = "podman";
 
+  systemd.tmpfiles.rules = [
+    "d /var/lib/jellyfin/config 0755 root root -"
+  ];
+
   # Containers
   virtualisation.oci-containers.containers."jellyfin" = {
     image = "jellyfin/jellyfin:10.11.6";
     volumes = [
-      "/DATA/AppData/jellyfin/config:/config:rw"
-      "/DATA/Media:/Media:rw"
+      "/var/lib/jellyfin/config:/config:rw"
       "/mnt/prodigy:/prodigy:rw"
     ];
     ports = [
