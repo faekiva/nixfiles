@@ -21,17 +21,10 @@
 
   # Containers
   virtualisation.oci-containers.containers."jellyfin" = {
-    image = "linuxserver/jellyfin:10.11.6";
-    environment = {
-      "DOCKER_MODS" = "linuxserver/mods:jellyfin-opencl-intel";
-      "PGID" = "1000";
-      "PUID" = "1000";
-      "TZ" = "America/Chicago";
-    };
+    image = "jellyfin/jellyfin:10.11.6";
     volumes = [
       "/DATA/AppData/jellyfin/config:/config:rw"
       "/DATA/Media:/Media:rw"
-      "/opt/vc/lib:/opt/vc/lib:rw"
       "/mnt/prodigy:/prodigy:rw"
     ];
     ports = [
@@ -40,9 +33,7 @@
       "7359:7359/tcp"
       "1901:1900/tcp"
     ];
-    cmd = [  ];
     labels = {
-      "icon" = "https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Jellyfin/icon.png";
       "stack-back.volumes" = "true";
       "stack-back.volumes.include" = "config";
       "stack-back.volumes.stop-during-backup" = "true";
@@ -51,7 +42,7 @@
     extraOptions = [
       "--device=/dev/dri/:/dev/dri/:rwm"
       "--dns=1.1.1.1"
-      "--group-add=109"
+      "--group-add=303"
       "--memory-reservation=268435456b"
       "--memory=8132755456b"
       "--network-alias=jellyfin"
