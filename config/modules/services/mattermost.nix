@@ -14,9 +14,9 @@
     localAddress = "192.168.67.2";
     config =
       {
-        config,
-        pkgs,
-        lib,
+        # config,
+        # pkgs,
+        # lib,
         ...
       }:
       {

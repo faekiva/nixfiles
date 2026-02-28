@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(ls:*)",
+      "Bash(nix flake lock:*)",
+      "Bash(nix flake update:*)"
+    ]
+  }
+}
