@@ -3,7 +3,7 @@ keys:
   - &sachi age1j0gn62eg6g20t0v9683sx6n45caqcjq2cuv7ce8tsjl99kqj09csrthy44
 
 creation_rules:
-  - path_regex: secrets/sachi/.*
+  - path_regex: secrets/.*
     key_groups:
       - age:
           - *admin
