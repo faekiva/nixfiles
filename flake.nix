@@ -29,6 +29,7 @@
             sops-nix.packages.${system}.default
             pkgs.sops
             pkgs.age
+            pkgs.ssh-to-age
           ]; 
         };
       }
