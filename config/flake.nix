@@ -17,6 +17,9 @@
     fzf-tab.flake = false;
     cco.url = "github:nikvdp/cco";
     cco.flake = false;
+
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -54,7 +57,11 @@
         value = nixpkgs.lib.nixosSystem {
           # system = "x86_64-linux";
           specialArgs = { inputs = inputs'; };
-          modules = [ ./hosts/NixOS/${host}/configuration.nix home-manager.nixosModules.home-manager ];
+          modules = [ 
+            ./hosts/NixOS/${host}/configuration.nix
+            home-manager.nixosModules.home-manager 
+            inputs.sops-nix.nixosModules.sops
+          ];
         };
       }) nixosHosts);
 
@@ -62,7 +69,11 @@
         name = host;
         value = nix-darwin.lib.darwinSystem {
           specialArgs = { inputs = inputs'; };
-          modules = [ ./hosts/Darwin/${host}/configuration.nix home-manager.darwinModules.home-manager ];
+          modules = [ 
+            ./hosts/Darwin/${host}/configuration.nix 
+            home-manager.darwinModules.home-manager 
+            inputs.sops-nix.darwinModules.sops
+          ];
         };
       }) darwinHosts);
     };
