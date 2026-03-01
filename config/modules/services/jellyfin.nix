@@ -106,7 +106,7 @@
     backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start podman-jellyfin.service";
   };
 
-  networking.firewall.allowedTCPPortRanges = [ 
+  networking.firewall.allowedTCPPorts = [ 
     8096
     8920
     7359
