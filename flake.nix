@@ -6,9 +6,13 @@
     url = "github:numtide/flake-utils";
     inputs.systems.follows = "systems";
   };
+  inputs.compose2nix.url = "github:aksiksi/compose2nix";
+  inputs.compose2nix.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.sops-nix.url = "github:Mic92/sops-nix";
+  inputs.sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs =
-    { nixpkgs, flake-utils, ... }:
+    { nixpkgs, flake-utils, compose2nix, sops-nix, ... }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
@@ -21,6 +25,11 @@
             pkgs.nixd
             pkgs.nixfmt
             pkgs.nh
+            compose2nix.packages.${system}.default
+            sops-nix.packages.${system}.default
+            pkgs.sops
+            pkgs.age
+            pkgs.ssh-to-age
           ]; 
         };
       }

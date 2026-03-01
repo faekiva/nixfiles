@@ -1,0 +1,10 @@
+keys:
+  - &admin age1g0a442ksz7zav9uhru6f862wvnvu69nt7v456mv4klxkxzm9hcyq0rhdy4
+  - &sachi age1j0gn62eg6g20t0v9683sx6n45caqcjq2cuv7ce8tsjl99kqj09csrthy44
+
+creation_rules:
+  - path_regex: secrets/.*
+    key_groups:
+      - age:
+          - *admin
+          - *sachi

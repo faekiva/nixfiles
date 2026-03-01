@@ -9,6 +9,8 @@
   ...
 }:
 {
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
   nix.package = pkgs.lixPackageSets.stable.lix;
   # options = {
   #   scripts.output = lib.mkOption {
@@ -26,6 +28,7 @@
     "${inputs.flakeRoot}/modules/services/docker.nix"
     "${inputs.flakeRoot}/modules/services/mattermost.nix"
     "${inputs.flakeRoot}/modules/services/immich.nix"
+    "${inputs.flakeRoot}/modules/services/jellyfin.nix"
   ];
 
   # Bootloader.
@@ -187,8 +190,8 @@
   };
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  # networking.firewall.allowedUDPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [ 22 8097 8921 7359 ];
+  networking.firewall.allowedUDPPorts = [ 1901 7359 ];
   # Or disable the firewall altogether.
   networking.firewall.enable = true;
 
