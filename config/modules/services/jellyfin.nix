@@ -40,10 +40,10 @@
       "/mnt/prodigy:/prodigy:rw"
     ];
     ports = [
-      "8097:8096/tcp"
-      "8921:8920/tcp"
+      "8096:8096/tcp"
+      "8920:8920/tcp"
       "7359:7359/tcp"
-      "1901:1900/tcp"
+      "1900:1900/tcp"
     ];
     log-driver = "journald";
     extraOptions = [
@@ -105,4 +105,11 @@
     backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop podman-jellyfin.service";
     backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start podman-jellyfin.service";
   };
+
+  networking.firewall.allowedTCPPortRanges = [ 
+    8096
+    8920
+    7359
+    1900
+  ];
 }
