@@ -1,9 +1,17 @@
 {
-  #pkgs,
+  lib,
+  config,
   ...
 }:
+let
+  cfg = config.services.docker;
+in
 {
-  config = {
+  options.services.docker = {
+    enable = lib.mkEnableOption "Docker container runtime";
+  };
+
+  config = lib.mkIf cfg.enable {
     virtualisation.docker.enable = true;
     virtualisation.docker.enableOnBoot = true;
     virtualisation.docker.daemon.settings = { 

@@ -2,12 +2,12 @@
 
 {
   sops.secrets."jellyfin-backup-env" = {
-    sopsFile = ../../secrets/backup.env;
+    sopsFile = ../../../secrets/backup.env;
     format = "dotenv";
   };
 
   sops.secrets."jellyfin-backup-password" = {
-    sopsFile = ../../secrets/backup.env;
+    sopsFile = ../../../secrets/backup.env;
     format = "dotenv";
     key = "RESTIC_PASSWORD";
   };
@@ -68,6 +68,8 @@
   # Auto-restore from backup if config dir is empty
   systemd.services."jellyfin-restore" = {
     description = "Restore Jellyfin config from restic backup if empty";
+    after = [ "network-online.target" "sops-nix.service" ];
+    wants = [ "network-online.target" ];
     serviceConfig = {
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets."jellyfin-backup-env".path;
