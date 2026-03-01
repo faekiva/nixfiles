@@ -52,41 +52,19 @@
       "--group-add=303"
       "--memory-reservation=268435456b"
       "--memory=8132755456b"
+      "--health-start-period=2m"
+      "--health-interval=disable"
     ];
   };
   systemd.services."podman-jellyfin" = {
     serviceConfig = {
       Restart = lib.mkOverride 90 "always";
     };
-    after = [ "jellyfin-restore.service" ];
-    requires = [ "jellyfin-restore.service" ];
     wantedBy = [
       "multi-user.target"
     ];
   };
 
-  # Auto-restore from backup if config dir is empty
-  systemd.services."jellyfin-restore" = {
-    description = "Restore Jellyfin config from restic backup if empty";
-    after = [ "network-online.target" "sops-nix.service" ];
-    wants = [ "network-online.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      EnvironmentFile = config.sops.secrets."jellyfin-backup-env".path;
-    };
-    script = ''
-      if [ -z "$(ls -A /var/lib/jellyfin/config 2>/dev/null)" ]; then
-        echo "Jellyfin config is empty, restoring latest backup..."
-        ${pkgs.restic}/bin/restic \
-          -r s3:s3.us-west-004.backblazeb2.com/restic-menagerie/jellyfin \
-          -p ${config.sops.secrets."jellyfin-backup-password".path} \
-          restore latest --target /
-        echo "Restore complete."
-      else
-        echo "Jellyfin config exists, skipping restore."
-      fi
-    '';
-  };
 
   # Restic backup for Jellyfin config
   services.restic.backups.jellyfin = {
