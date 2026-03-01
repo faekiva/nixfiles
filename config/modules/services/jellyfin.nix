@@ -37,7 +37,7 @@
     image = "jellyfin/jellyfin:10.11.6";
     volumes = [
       "/var/lib/jellyfin/config:/config:rw"
-      "/var/lib/jellyfin/cache:/cache:rw"
+      "/var/lib/jellyfin/config/cache:/cache:rw"
       "/mnt/prodigy:/prodigy:rw"
     ];
     ports = [
