@@ -45,6 +45,12 @@
       "7359:7359/tcp"
       "1900:1900/tcp"
     ];
+    environment = {
+      JELLYFIN_DATA_DIR="/config/data"; #Uncomment for Jellyfin Images
+      JELLYFIN_CONFIG_DIR="/config"; #Uncomment for Jellyfin Images
+      JELLYFIN_LOG_DIR="/config/log"; #Uncomment for Jellyfin Images
+      JELLYFIN_CACHE_DIR="/config/cache"; #Uncomment for Jellyfin Images
+    };
     log-driver = "journald";
     extraOptions = [
       "--device=/dev/dri/:/dev/dri/:rwm"
