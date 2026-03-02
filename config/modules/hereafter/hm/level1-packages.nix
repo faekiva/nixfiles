@@ -7,6 +7,7 @@
 
   home.packages = [ 
     pkgs.gum
+    pkgs.dust
     pkgs.lsd
     pkgs.ripgrep
     pkgs.bat
