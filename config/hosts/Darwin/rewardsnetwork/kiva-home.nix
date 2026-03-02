@@ -8,7 +8,7 @@
 let
   hasPackage = pkg: builtins.elem pkg config.home.packages;
   hasAstGrep = hasPackage pkgs.ast-grep;
-  hasClaude = hasPackage pkgs.claude-code;
+  hasClaude = hasPackage inputs.llm-agents.packages.${pkgs.system}.claude-code;
 in
 {
   home.stateVersion = "25.11";

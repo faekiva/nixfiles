@@ -11,7 +11,7 @@ in
 {
   home.packages = [
     pkgs.aider-chat
-    pkgs.claude-code
+    inputs.llm-agents.packages.${pkgs.system}.claude-code
     cco
     inputs.llm-agents.packages.${pkgs.system}.kilocode-cli
   ];
