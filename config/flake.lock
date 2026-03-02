@@ -94,6 +94,26 @@
         "type": "github"
       }
     },
+    "kilocode": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772403298,
+        "narHash": "sha256-MYA1lsk+voIVRUNI2i9sBRfki5xNh31J7uUH9rk0Tac=",
+        "owner": "Kilo-Org",
+        "repo": "kilocode",
+        "rev": "d50ac091f546a02986496be11b1ec89ae86db626",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Kilo-Org",
+        "repo": "kilocode",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -153,6 +173,7 @@
         "direnv-instant": "direnv-instant",
         "fzf-tab": "fzf-tab",
         "home-manager": "home-manager",
+        "kilocode": "kilocode",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs_2",
         "sops-nix": "sops-nix"

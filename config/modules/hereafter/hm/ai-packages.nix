@@ -13,5 +13,6 @@ in
     pkgs.aider-chat
     pkgs.claude-code
     cco
+    inputs.kilocode.packages.${pkgs.system}.default
   ];
 }

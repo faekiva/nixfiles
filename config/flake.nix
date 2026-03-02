@@ -17,6 +17,8 @@
     fzf-tab.flake = false;
     cco.url = "github:nikvdp/cco";
     cco.flake = false;
+    kilocode.url = "github:Kilo-Org/kilocode";
+    kilocode.inputs.nixpkgs.follows = "nixpkgs";
 
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
