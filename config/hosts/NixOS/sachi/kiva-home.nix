@@ -12,6 +12,7 @@
   imports = [
     "${inputs.flakeRoot}/modules/hereafter/hm/level1-packages.nix"
     "${inputs.flakeRoot}/modules/hereafter/hm/ai-packages.nix"
+    "${inputs.flakeRoot}/modules/hereafter/hm/beets.nix"
   ];
 
   dconf.settings = {

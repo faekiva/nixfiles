@@ -5,13 +5,13 @@
 {
   inputs,
   pkgs,
+  pkgs-stable,
   #lib,
   ...
 }:
 {
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
-  nix.package = pkgs.lixPackageSets.stable.lix;
   # options = {
   #   scripts.output = lib.mkOption {
   #     type = lib.types.lines;
@@ -65,11 +65,6 @@
 
   hereafter.kvm.users = [ "kiva" ];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
@@ -119,7 +114,6 @@
     packages = with pkgs; [
       kdePackages.kate
       claude-code
-      beets
       #  thunderbird
     ];
     openssh.authorizedKeys.keys = [
@@ -127,7 +121,7 @@
     ];
   };
 
-  home-manager.extraSpecialArgs = { inherit inputs; };
+  home-manager.extraSpecialArgs = { inherit inputs pkgs-stable; };
   home-manager.users.kiva = ./kiva-home.nix;
 
   security.sudo = {
@@ -148,7 +142,7 @@
   # Allox nix container internet access
   networking.nat.enable = true;
   networking.nat.internalInterfaces = [ "ve-*" ];
-  networking.nat.externalInterface = "enp1s0"; 
+  networking.nat.externalInterface = "enp1s0";
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -191,8 +185,16 @@
   };
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 22 8097 8921 7359 ];
-  networking.firewall.allowedUDPPorts = [ 1901 7359 ];
+  networking.firewall.allowedTCPPorts = [
+    22
+    8097
+    8921
+    7359
+  ];
+  networking.firewall.allowedUDPPorts = [
+    1901
+    7359
+  ];
   # Or disable the firewall altogether.
   networking.firewall.enable = true;
 

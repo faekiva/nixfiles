@@ -1,13 +1,9 @@
 {
   description = "A very basic flake";
 
-  nixConfig = {
-    extra-substituters = [ "https://cache.numtide.com" ];
-    extra-trusted-public-keys = [ "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" ];
-  };
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     nix-darwin.url = "github:nix-darwin/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
@@ -32,17 +28,17 @@
     inputs@{
       self,
       nixpkgs,
+      nixpkgs-stable,
       nix-darwin,
       home-manager,
       ...
     }:
     let
       # Get all directory names from a path
-      hostDirs = path:
+      hostDirs =
+        path:
         builtins.attrNames (
-          nixpkgs.lib.filterAttrs
-            (name: type: type == "directory")
-            (builtins.readDir path)
+          nixpkgs.lib.filterAttrs (name: type: type == "directory") (builtins.readDir path)
         );
 
       darwinHosts = hostDirs ./hosts/Darwin;
@@ -58,29 +54,43 @@
       nixpkgs.config.allowUnfree = true;
       nixpkgs.allowUnfreePredicate = _: true;
 
-      nixosConfigurations = builtins.listToAttrs (map (host: {
-        name = host;
-        value = nixpkgs.lib.nixosSystem {
-          # system = "x86_64-linux";
-          specialArgs = { inputs = inputs'; };
-          modules = [ 
-            ./hosts/NixOS/${host}/configuration.nix
-            home-manager.nixosModules.home-manager 
-            inputs.sops-nix.nixosModules.sops
-          ];
-        };
-      }) nixosHosts);
+      nixosConfigurations = builtins.listToAttrs (
+        map (host: {
+          name = host;
+          value = nixpkgs.lib.nixosSystem {
+            # system = "x86_64-linux";
+            specialArgs = {
+              inputs = inputs';
+              pkgs-stable = import nixpkgs-stable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
+            modules = [
+              ./modules/hereafter/nix-settings.nix
+              ./hosts/NixOS/${host}/configuration.nix
+              home-manager.nixosModules.home-manager
+              inputs.sops-nix.nixosModules.sops
+            ];
+          };
+        }) nixosHosts
+      );
 
-      darwinConfigurations = builtins.listToAttrs (map (host: {
-        name = host;
-        value = nix-darwin.lib.darwinSystem {
-          specialArgs = { inputs = inputs'; };
-          modules = [ 
-            ./hosts/Darwin/${host}/configuration.nix 
-            home-manager.darwinModules.home-manager 
-            inputs.sops-nix.darwinModules.sops
-          ];
-        };
-      }) darwinHosts);
+      darwinConfigurations = builtins.listToAttrs (
+        map (host: {
+          name = host;
+          value = nix-darwin.lib.darwinSystem {
+            specialArgs = {
+              inputs = inputs';
+            };
+            modules = [
+              ./modules/hereafter/nix-settings.nix
+              ./hosts/Darwin/${host}/configuration.nix
+              home-manager.darwinModules.home-manager
+              inputs.sops-nix.darwinModules.sops
+            ];
+          };
+        }) darwinHosts
+      );
     };
 }

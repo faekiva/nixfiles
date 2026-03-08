@@ -9,7 +9,14 @@
       "Bash(lspci:*)",
       "WebFetch(domain:jellyfin.org)",
       "Bash(getent group:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:discourse.nixos.org)"
     ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
   }
 }

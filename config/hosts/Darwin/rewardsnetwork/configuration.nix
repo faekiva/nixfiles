@@ -1,6 +1,5 @@
 { inputs, pkgs, ... }:
 {
-  nix.package = pkgs.lixPackageSets.stable.lix;
   environment.systemPackages = [
     pkgs.git
   ];
@@ -14,9 +13,6 @@
   home-manager.users.kiva = ./kiva-home.nix;
   home-manager.useGlobalPkgs = true;
   nixpkgs.config.allowUnfree = true;
-
-  # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
 
   # Enable alternative shell support in nix-darwin.
   # programs.fish.enable = true;
