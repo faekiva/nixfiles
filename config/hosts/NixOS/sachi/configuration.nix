@@ -119,6 +119,7 @@
     packages = with pkgs; [
       kdePackages.kate
       claude-code
+      beets
       #  thunderbird
     ];
     openssh.authorizedKeys.keys = [
