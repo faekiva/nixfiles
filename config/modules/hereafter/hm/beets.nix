@@ -22,7 +22,6 @@
 
       plugins = [
         "musicbrainz"
-        "lastgenre"
         "fetchart"
         "discogs"
         "ftintitle"
@@ -47,16 +46,14 @@
         original_year = true;
       };
 
-      lastgenre = {
-        canonical = "";
-        source = "album";
-        count = 10;
-        separator = "; ";
-      };
-
       unimported = {
         ignore_extensions = [ "jpg" "png" ];
         ignore_subdirectories = [ "NonMusic" "data" "temp" ];
+      };
+
+      musicbrainz = {
+        genres = true;
+        extra_tags=["ISRC"];
       };
     };
   };

@@ -23,6 +23,7 @@
           packages = [
             pkgs.bashInteractive
             pkgs.nixd
+            pkgs.nil
             pkgs.nixfmt
             pkgs.nh
             compose2nix.packages.${system}.default
