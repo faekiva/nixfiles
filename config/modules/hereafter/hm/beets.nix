@@ -9,6 +9,7 @@
     python312Packages.flask
     python312Packages.pylast
     python312Packages.requests
+    picard
   ];
 
   programs.beets = {
