@@ -21,6 +21,7 @@
       import.log = "/mnt/prodigy/mojo/audio/music/Abarat/beets.log";
 
       plugins = [
+        "musicbrainz"
         "lastgenre"
         "fetchart"
         "discogs"

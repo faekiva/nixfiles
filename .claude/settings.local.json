@@ -12,7 +12,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:github.com)",
       "WebSearch",
-      "WebFetch(domain:discourse.nixos.org)"
+      "WebFetch(domain:discourse.nixos.org)",
+      "WebFetch(domain:api.github.com)"
     ]
   },
   "sandbox": {
