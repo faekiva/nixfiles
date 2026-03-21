@@ -1,11 +1,12 @@
 {
   pkgs,
+  inputs,
   ...
 }:
 {
   imports = [./level0-packages.nix ./atuin.nix ./direnv.nix ];
 
-  home.packages = [ 
+  home.packages = [
     pkgs.gum
     pkgs.dust
     pkgs.lsd
@@ -15,5 +16,6 @@
     pkgs.zsh
     pkgs.go-task
     pkgs.tmux
+    inputs.git-wt.packages.${pkgs.system}.default
   ];
 }
