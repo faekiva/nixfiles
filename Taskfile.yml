@@ -57,6 +57,13 @@ tasks:
         platforms:
           - darwin
 
+  update:
+    desc: updates the system's packages
+    dir: config
+    cmds:
+      - nix flake update
+      - task: deploy
+
   deploy-sachi:
     desc: Deploy NixOS configuration to sachi remotely over SSH
     cmds:

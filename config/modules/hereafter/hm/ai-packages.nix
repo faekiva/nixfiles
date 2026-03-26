@@ -19,7 +19,6 @@ let
 in
 {
   home.packages = [
-    pkgs.aider-chat
     inputs.llm-agents.packages.${pkgs.system}.claude-code
     cco
     kilocode-with-alias
