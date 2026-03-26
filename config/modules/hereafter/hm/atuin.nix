@@ -17,7 +17,14 @@
       inline_height = 20;
       enter_accept = true;
       sync.records = true;
-      search_mode = "fuzzy";
+      search_mode = "daemon-fuzzy";
+      ai = {
+        enabled = true;
+      };
+    daemon = {
+      enabled = true;
+      autostart = true;
+    };
     };
     
   };
