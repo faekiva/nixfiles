@@ -24,6 +24,9 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     git-wt.url = "github:ahmedelgabri/git-wt";
+
+    atuin.url = "github:atuinsh/atuin/main";
+    atuin.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
