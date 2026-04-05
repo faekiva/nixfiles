@@ -123,6 +123,7 @@
     packages = with pkgs; [
       kdePackages.kate
       claude-code
+      vscode
       #  thunderbird
     ];
     openssh.authorizedKeys.keys = [

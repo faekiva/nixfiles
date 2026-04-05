@@ -44,7 +44,7 @@
 
       match.preferred = {
         countries = [ "US" "GB|UK" ];
-        media = [ "CD" "Digital Media|File" ];
+        media = [ "CD" "Digital Media|File" "Digital Media" ];
         original_year = true;
       };
 
