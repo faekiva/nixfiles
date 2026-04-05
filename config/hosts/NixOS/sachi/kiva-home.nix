@@ -7,6 +7,7 @@
   home.stateVersion = "25.11";
   home.packages = [
     pkgs.ffmpeg-full
+    pkgs.sunshine
   ];
 
   imports = [

@@ -160,13 +160,6 @@
     #  wget
   ];
 
-  systemd.sleep.extraConfig = ''
-    	AllowSuspend=no
-    	AllowHibernation=no
-    	AllowHybridSleep=no
-    	AllowSuspendThenHibernate=no
-  '';
-
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
