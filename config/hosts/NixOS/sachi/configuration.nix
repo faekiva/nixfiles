@@ -139,7 +139,8 @@
     ];
   };
 
-  # Allox nix container internet access
+  # Allow nix container internet access
+  networking.nftables.enable = true;
   networking.nat.enable = true;
   networking.nat.internalInterfaces = [ "ve-*" ];
   networking.nat.externalInterface = "enp1s0";
