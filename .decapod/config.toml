@@ -6,8 +6,6 @@ diagram_style = "ascii"
 entrypoints = [
     "AGENTS.md",
     "CLAUDE.md",
-    "GEMINI.md",
-    "CODEX.md",
 ]
 
 [repo]
