@@ -20,6 +20,7 @@ in
 {
   home.packages = [
     inputs.llm-agents.packages.${pkgs.system}.claude-code
+    inputs.decapod.packages.${pkgs.system}.default
     cco
     kilocode-with-alias
   ];

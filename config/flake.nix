@@ -27,6 +27,11 @@
 
     atuin.url = "github:atuinsh/atuin/main";
     atuin.inputs.nixpkgs.follows = "nixpkgs";
+
+    decapod = {
+      url = "github:faekiva/decapod";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

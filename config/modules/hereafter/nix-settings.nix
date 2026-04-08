@@ -1,6 +1,9 @@
 { pkgs, inputs, ... }:
+let
+  pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs) system; };
+in
 {
-  nix.package = pkgs.lixPackageSets.stable.lix;
+  nix.package = pkgs-stable.lixPackageSets.stable.lix;
 
   nix.settings = {
     experimental-features = [
