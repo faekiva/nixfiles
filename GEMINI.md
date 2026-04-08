@@ -13,7 +13,10 @@ decapod docs show docs/AGENTS.md
 - **INV-STORE-BOUNDARY**: Agents MUST NOT directly mutate `.decapod/*`; all access MUST use CLI. (enforced by validation gates)
 - **INV-DAEMONLESS**: Decapod MUST NOT leave background processes running.
 - **INV-BOUNDED-VALIDATE**: `decapod validate` MUST terminate within bounded time.
-- **CLI-only jail rule**: MUST access `.decapod/*` files only via CLI surfaces.
+
+## .decapod CLI-only jail rule marker
+
+**.decapod CLI-only jail rule marker**: Agents MUST NOT directly mutate `.decapod/*`; all access MUST use CLI surfaces.
 
 ## Mandatory Initialization
 
