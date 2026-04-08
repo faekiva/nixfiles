@@ -1,0 +1,17 @@
+schema_version = "1.0.0"
+
+[init]
+specs = true
+diagram_style = "ascii"
+entrypoints = [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "CODEX.md",
+]
+
+[repo]
+product_name = "nixfiles"
+product_summary = "manage system state of several different systems via nix"
+architecture_direction = "Composable repository architecture with explicit boundaries and proof-backed delivery invariants."
+done_criteria = "decapod validate passes, task build passes"

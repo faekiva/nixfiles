@@ -57,6 +57,21 @@ tasks:
         platforms:
           - darwin
 
+  build:
+    desc: build the derivation
+    vars:
+      NIX_HOSTNAME:
+        sh: cat .hostname
+    deps:
+      - ensure-hostname
+    cmds:
+      - cmd: nh os build ./config -H {{ .NIX_HOSTNAME }}
+        platforms:
+          - linux
+      - cmd: nh darwin build ./config -H {{ .NIX_HOSTNAME }}
+        platforms:
+          - darwin
+
   update:
     desc: updates the system's packages
     dir: config
