@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -8,8 +9,8 @@
 
     settings = {
       user = {
-        name = "kiva";
-        email = "git@kiva.lgbt";
+        name = lib.mkDefault "kiva";
+        email = lib.mkDefault "git@kiva.lgbt";
       };
 
       alias = {
