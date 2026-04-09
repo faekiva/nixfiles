@@ -12,6 +12,7 @@ in
     ./level0-packages.nix
     ./atuin.nix
     ./direnv.nix
+    ./git.nix
   ];
 
   home.packages = [
@@ -27,7 +28,6 @@ in
     inputs.git-wt.packages.${pkgs.system}.default
 
     # Brewfile migration
-    pkgs.delta
     pkgs.jq
     pkgs.sd
     pkgs.httpie
