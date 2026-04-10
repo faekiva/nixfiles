@@ -1,0 +1,1 @@
+- [Prefer simple solutions](feedback_simplicity.md) — comment out code rather than adding abstractions for toggling
