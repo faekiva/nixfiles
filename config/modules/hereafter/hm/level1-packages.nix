@@ -37,6 +37,7 @@ in
     pkgs.eget
     pkgs.kubeswitch
     pkgs.mods
+    pkgs.postgresql
     rad
   ]
   ++ lib.optional pkgs.stdenv.isDarwin pkgs.coreutils;
