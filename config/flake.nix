@@ -32,6 +32,12 @@
       url = "github:faekiva/decapod";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Nix-index-database - for comma and command-not-found
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

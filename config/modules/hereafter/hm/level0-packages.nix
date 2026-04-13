@@ -4,6 +4,8 @@
   ...
 }:
 {
+  imports =  [ ./comma.nix ];
+
   home.packages = [
     pkgs.htop
     pkgs.fd
