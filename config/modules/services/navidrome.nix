@@ -26,7 +26,7 @@
     hostAddress = "192.168.67.1";
     localAddress = "192.168.67.4";
     bindMounts."/music" = {
-      hostPath = "/mnt/prodigy/mojo/audio/music/Abarat";
+      hostPath = inputs.constants.musicDir;
       isReadOnly = true;
     };
     bindMounts."/run/secrets/navidrome.env" = {

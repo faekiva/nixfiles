@@ -65,6 +65,11 @@
         flakeRoot = self;
         repoRoot = "${self}/..";
       };
+
+      defaultConstants = import ./modules/constants.nix;
+      hostConstants = dir: host:
+        let path = ./hosts/${dir}/${host}/constants.nix;
+        in if builtins.pathExists path then import path else { };
     in
     {
       nixpkgs.config.allowUnfree = true;
@@ -76,7 +81,9 @@
           value = nixpkgs.lib.nixosSystem {
             # system = "x86_64-linux";
             specialArgs = {
-              inputs = inputs';
+              inputs = inputs' // {
+                constants = defaultConstants // hostConstants "NixOS" host;
+              };
               pkgs-stable = import nixpkgs-stable {
                 system = "x86_64-linux";
                 config.allowUnfree = true;
@@ -97,7 +104,9 @@
           name = host;
           value = nix-darwin.lib.darwinSystem {
             specialArgs = {
-              inputs = inputs';
+              inputs = inputs' // {
+                constants = defaultConstants // hostConstants "Darwin" host;
+              };
             };
             modules = [
               ./modules/hereafter/nix-settings.nix

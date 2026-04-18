@@ -1,6 +1,7 @@
 {
   pkgs,
   pkgs-stable,
+  inputs,
   ...
 }:
 {
@@ -16,10 +17,10 @@
     enable = true;
     package = pkgs-stable.beets;
     settings = {
-      directory = "/mnt/prodigy/mojo/audio/music/Abarat";
-      library = "/mnt/prodigy/mojo/audio/music/Abarat/musiclibrary.blb";
+      directory = inputs.constants.musicDir;
+      library = "${inputs.constants.musicDir}/musiclibrary.blb";
       import.move = true;
-      import.log = "/mnt/prodigy/mojo/audio/music/Abarat/beets.log";
+      import.log = "${inputs.constants.musicDir}/beets.log";
 
       plugins = [
         "musicbrainz"

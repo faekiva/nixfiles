@@ -1,6 +1,8 @@
 { pkgs, lib, config, ... }:
 
 {
+  imports = [ ./compose2nix-common.nix ];
+
   sops.secrets."jellyfin-backup-env" = {
     sopsFile = ../../../secrets/backup.env;
     format = "dotenv";
@@ -11,22 +13,6 @@
     format = "dotenv";
     key = "RESTIC_PASSWORD";
   };
-
-  # Runtime
-  virtualisation.podman = {
-    enable = true;
-    autoPrune.enable = true;
-    dockerCompat = true;
-  };
-
-  # Enable container name DNS for all Podman networks.
-  networking.firewall.interfaces = let
-    matchAll = if !config.networking.nftables.enable then "podman+" else "podman*";
-  in {
-    "${matchAll}".allowedUDPPorts = [ 53 ];
-  };
-
-  virtualisation.oci-containers.backend = "podman";
 
   systemd.tmpfiles.rules = [
     "d /var/lib/jellyfin/config 0755 root root -"
