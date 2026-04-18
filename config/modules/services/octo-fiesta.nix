@@ -25,7 +25,7 @@
       "ASPNETCORE_ENVIRONMENT" = "Production";
       "ASPNETCORE_URLS" = "http://+:8080";
       "Library__DownloadPath" = "/app/downloads";
-      "Qobuz__Quality" = "7";
+      "Qobuz__Quality" = "FLAC";
       "SquidWTF__InstanceTimeoutSeconds" = "5";
       # https://github.com/V1ck3s/octo-fiesta/wiki/Configuration#squidwtf-quality-options
       "SquidWTF__Quality" = "7";
