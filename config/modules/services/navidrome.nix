@@ -15,6 +15,10 @@
   sops.secrets."navidrome/lastfm/apiSecret" = {
     sopsFile = "${inputs.repoRoot}/secrets/navidrome.yaml";
   };
+  sops.templates."navidrome.env".content = ''
+    ND_LASTFM_APIKEY=${config.sops.placeholder."navidrome/lastfm/apiKey"}
+    ND_LASTFM_SECRET=${config.sops.placeholder."navidrome/lastfm/apiSecret"}
+  '';
 
   containers.navidrome = {
     autoStart = true;
@@ -23,6 +27,10 @@
     localAddress = "192.168.67.4";
     bindMounts."/music" = {
       hostPath = "/mnt/prodigy/mojo/audio/music/Abarat";
+      isReadOnly = true;
+    };
+    bindMounts."/run/secrets/navidrome.env" = {
+      hostPath = config.sops.templates."navidrome.env".path;
       isReadOnly = true;
     };
     config =
@@ -34,12 +42,10 @@
             Address = "0.0.0.0";
             Port = 4533;
             MusicFolder = "/music";
-            LastFM = {
-              ApiKey = config.sops.secrets."navidrome/lastfm/apiKey".path;
-              Secret = config.sops.secrets."navidrome/lastfm/apiSecret".path;
-            };
           };
         };
+
+        systemd.services.navidrome.serviceConfig.EnvironmentFile = "/run/secrets/navidrome.env";
 
         system.stateVersion = "25.11";
         networking.firewall = {
