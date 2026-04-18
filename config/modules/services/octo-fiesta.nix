@@ -28,7 +28,7 @@
       "Subsonic__MusicService" = "SquidWTF";
       "Subsonic__PlaylistsDirectory" = "playlists";
       "Subsonic__StorageMode" = "Permanent";
-      "Subsonic__Url" = "http://localhost:4533";
+      "Subsonic__Url" = "http://host.containers.internal:4533";
       "Yandex__IncludeUnavailable" = "false";
       "Yandex__Language" = "";
       "Yandex__OAuthToken" = "";
@@ -42,6 +42,7 @@
     ];
     log-driver = "journald";
     extraOptions = [
+      "--add-host=host.containers.internal:host-gateway"
       "--network-alias=octo-fiesta"
       "--network=octo-fiesta_default"
     ];
