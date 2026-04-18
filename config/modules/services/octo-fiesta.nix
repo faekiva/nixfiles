@@ -36,7 +36,7 @@
       "Subsonic__EnableExternalPlaylists" = "true";
       "Subsonic__ExplicitFilter" = "All";
       "Subsonic__FolderTemplate" = "";
-      "Subsonic__MusicService" = "SquidWTF";
+      "Subsonic__MusicService" = "Qobuz";
       "Subsonic__PlaylistsDirectory" = "playlists";
       "Subsonic__StorageMode" = "Permanent";
       "Subsonic__Url" = "https://navidrome.kiva.lgbt";
