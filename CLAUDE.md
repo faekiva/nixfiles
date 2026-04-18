@@ -27,7 +27,6 @@ Uses [go-task](https://taskfile.dev) via `Taskfile.yml`:
 
 ```bash
 task deploy          # Deploy to current machine (uses nh, prompts for confirmation)
-task deploy-sachi    # Remote deploy to sachi over SSH
 ```
 
 Under the hood, deploy runs `nh os switch ./config --ask -H <hostname>` (Linux) or `nh darwin switch ./config --ask -H <hostname>` (Darwin).

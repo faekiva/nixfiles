@@ -5,6 +5,8 @@
 {
   imports = [ ./compose2nix-common.nix ];
 
+  networking.firewall.allowedTCPPorts = [ 5274 ];
+
   # Containers
   virtualisation.oci-containers.containers."octo-fiesta" = {
     image = "ghcr.io/v1ck3s/octo-fiesta";
