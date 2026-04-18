@@ -63,8 +63,3 @@ tasks:
     cmds:
       - nix flake update
       - task: deploy
-
-  deploy-sachi:
-    desc: Deploy NixOS configuration to sachi remotely over SSH
-    cmds:
-      - ./scripts/deploy-remote.sh sachi
