@@ -29,6 +29,7 @@
     "${inputs.flakeRoot}/modules/services/mattermost.nix"
     "${inputs.flakeRoot}/modules/services/immich.nix"
     "${inputs.flakeRoot}/modules/services/jellyfin.nix"
+    "${inputs.flakeRoot}/modules/services/navidrome.nix"
     "${inputs.flakeRoot}/modules/services/restic-immich.nix"
   ];
 
