@@ -31,6 +31,7 @@
     "${inputs.flakeRoot}/modules/services/jellyfin.nix"
     "${inputs.flakeRoot}/modules/services/navidrome.nix"
     "${inputs.flakeRoot}/modules/services/restic-immich.nix"
+    "${inputs.flakeRoot}/modules/services/octo-fiesta.nix"
   ];
 
   # Bootloader.
