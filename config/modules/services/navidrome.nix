@@ -1,11 +1,20 @@
 {
   pkgs,
+  config,
+  inputs,
   ...
 }:
 {
   environment.systemPackages = [ pkgs.navidrome ];
 
   networking.firewall.allowedTCPPorts = [ 4533 ];
+
+  sops.secrets."navidrome/lastfm/apiKey" = {
+    sopsFile = "${inputs.repoRoot}/secrets/navidrome.yaml";
+  };
+  sops.secrets."navidrome/lastfm/apiSecret" = {
+    sopsFile = "${inputs.repoRoot}/secrets/navidrome.yaml";
+  };
 
   containers.navidrome = {
     autoStart = true;
@@ -25,6 +34,10 @@
             Address = "0.0.0.0";
             Port = 4533;
             MusicFolder = "/music";
+            LastFM = {
+              ApiKey = config.sops.secrets."navidrome/lastfm/apiKey".path;
+              Secret = config.sops.secrets."navidrome/lastfm/apiSecret".path;
+            };
           };
         };
 
