@@ -11,5 +11,6 @@
     pkgs.fd
     pkgs.git
     pkgs.micro
+    pkgs.curl
   ] ++ lib.optional pkgs.stdenv.isLinux pkgs.busybox;
 }
