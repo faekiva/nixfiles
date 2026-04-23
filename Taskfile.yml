@@ -57,9 +57,19 @@ tasks:
         platforms:
           - darwin
 
+  update-fetchurl:
+    desc: "update url+hash in a nix file: task update-fetchurl FILE=path/to/file.nix URL=https://..."
+    cmds:
+      - scripts/update-fetchurl.sh {{.FILE}} {{.URL}}
+
+  update-go:
+    desc: fetch latest stable Go release and patch go.nix
+    cmds:
+      - scripts/update-go.sh
+
   update:
     desc: updates the system's packages
-    dir: config
     cmds:
-      - nix flake update
+      - task: update-go
+      - cmd: cd config && nix flake update
       - task: deploy

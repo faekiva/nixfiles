@@ -13,6 +13,7 @@ in
     ./atuin.nix
     ./direnv.nix
     ./git.nix
+    ./go.nix
   ];
 
   home.packages = [
@@ -26,13 +27,13 @@ in
     pkgs.go-task
     pkgs.tmux
     inputs.git-wt.packages.${pkgs.system}.default
+    pkgs.kubectl
 
     # Brewfile migration
     pkgs.jq
     pkgs.sd
     pkgs.httpie
     pkgs.python313
-    pkgs.go
     pkgs.bun
     pkgs.eget
     pkgs.kubeswitch

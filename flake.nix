@@ -31,6 +31,10 @@
             pkgs.sops
             pkgs.age
             pkgs.ssh-to-age
+            pkgs.curl
+            pkgs.jq
+            pkgs.perl
+            pkgs.go-task
           ]; 
         };
       }
