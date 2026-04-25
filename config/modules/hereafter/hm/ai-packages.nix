@@ -23,5 +23,6 @@ in
     # inputs.decapod.packages.${pkgs.system}.default # waiting for new version
     cco
     kilocode-with-alias
+    inputs.llm-agents.packages.${pkgs.system}.pi
   ];
 }
