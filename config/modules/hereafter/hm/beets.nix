@@ -34,7 +34,7 @@
         "unimported"
       ];
 
-      paths.default = "$albumartist_sort/$album%aunique{} ($original_year) [$format]/%if{$multidisc,Disc $disc/}$track. $title";
+      paths.default = "$albumartist/$album%aunique{} ($original_year) [$format]/%if{$multidisc,Disc $disc/}$track. $title";
       paths.singleton = "Non-Album/$artist/$title";
       paths.comp = "Compilations/$album%aunique{}/$track $title";
 
