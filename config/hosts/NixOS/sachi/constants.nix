@@ -1,3 +1,3 @@
 {
-  musicDir = "/mnt/prodigy/mojo/audio/music/Abarat";
+  musicDir = "/mnt/prodigy/mojo/audio/music/cerritos";
 }
