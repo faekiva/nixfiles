@@ -61,6 +61,7 @@
     ignores = [
       ".jj"
       "vault.json"
+      ".kiva"
     ];
   };
 
