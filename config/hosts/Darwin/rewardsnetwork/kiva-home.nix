@@ -20,8 +20,6 @@ in
   home.packages = [
   	pkgs.nickel
   	pkgs.ast-grep
-  	pkgs.zed-editor
-  	(pkgs.writeShellScriptBin "zed" ''exec ${pkgs.zed-editor}/bin/zeditor "$@"'')
   ];
   home.file.".claude/skills/ast-grep" = lib.mkIf (hasAstGrep && hasClaude) {
     source =
