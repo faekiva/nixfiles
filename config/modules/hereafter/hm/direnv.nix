@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   ...
 }:
 {
@@ -12,6 +13,7 @@
       enable = true;
       # enableBashIntegration = true; # see note on other shells below
       # enableZshIntegration = true;
+      package = pkgs.direnv.overrideAttrs (_: { doCheck = false; });
       nix-direnv.enable = true;
     };
     # bash.enable = true; # see note on other shells below

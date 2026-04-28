@@ -14,7 +14,12 @@
       "WebSearch",
       "WebFetch(domain:discourse.nixos.org)",
       "WebFetch(domain:api.github.com)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(gh issue *)",
+      "Bash(nix eval *)",
+      "Bash(nix-store -q --references /nix/store/h7zxq66a2xrh038bk7p04r2w5z9jr20y-darwin-system-26.05.06648f4.drv)",
+      "Bash(nix-store -q --requisites /nix/store/h7zxq66a2xrh038bk7p04r2w5z9jr20y-darwin-system-26.05.06648f4.drv)",
+      "Bash(nix why-depends *)"
     ]
   },
   "sandbox": {

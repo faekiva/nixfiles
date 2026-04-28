@@ -15,7 +15,7 @@ URL="$2"
 
 printf "Fetching %s...\n" "$URL"
 RAW=$(nix-prefetch-url --type sha256 "$URL" 2>/dev/null)
-SRI=$(nix hash convert --hash-algo sha256 --to sri "$RAW")
+SRI=$(nix hash to-sri --type sha256 "$RAW")
 
 perl -pi -e "s|url = \"[^\"]*\"|url = \"$URL\"|" "$NIX_FILE"
 perl -pi -e "s|hash = \"[^\"]*\"|hash = \"$SRI\"|" "$NIX_FILE"
