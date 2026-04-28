@@ -38,6 +38,8 @@
         all = true;
       };
 
+      pull.rebase = true;
+
       commit.verbose = true;
       rerere = {
         enabled = true;
