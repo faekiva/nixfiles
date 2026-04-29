@@ -1,3 +1,5 @@
+# NOTE: This module is currently unused — not imported by any host.
+# Kept around for potential future use.
 {
   inputs,
   ...

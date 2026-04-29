@@ -6,6 +6,14 @@
 }:
 let
   rad = pkgs.callPackage "${inputs.flakeRoot}/packages/rad.nix" { };
+  # Shadow the system nix zsh on Darwin: the prebuilt binary (built against
+  # an older Darwin SDK) hangs on $(...) under interactive mode. Apple's
+  # /bin/zsh is unaffected. Home-manager profile beats system profile in
+  # PATH, so this symlink wins for `which zsh` / `exec zsh`.
+  zshSystem = pkgs.runCommand "zsh-system" { } ''
+    mkdir -p $out/bin
+    ln -s /bin/zsh $out/bin/zsh
+  '';
 in
 {
   imports = [
@@ -23,7 +31,6 @@ in
     pkgs.ripgrep
     pkgs.bat
     pkgs.fzf
-    pkgs.zsh
     pkgs.go-task
     pkgs.tmux
     inputs.git-wt.packages.${pkgs.system}.default
@@ -41,5 +48,6 @@ in
     pkgs.postgresql
     rad
   ]
-  ++ lib.optional pkgs.stdenv.isDarwin pkgs.coreutils;
+  ++ lib.optional pkgs.stdenv.isDarwin pkgs.coreutils
+  ++ lib.optional pkgs.stdenv.isDarwin zshSystem;
 }
