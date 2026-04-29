@@ -17,6 +17,7 @@ in
     "${inputs.flakeRoot}/modules/hereafter/hm/ai-packages.nix"
   ];
   programs.git.settings.user.email = "khilgenberg@rewardsnetwork.com";
+  programs.lapce.enable = true;
   home.packages = [
   	pkgs.nickel
   	pkgs.ast-grep
