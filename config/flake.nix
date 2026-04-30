@@ -110,6 +110,7 @@
             };
             modules = [
               ./modules/hereafter/nix-settings.nix
+              ./modules/hereafter/darwin-overlays.nix
               ./hosts/Darwin/${host}/configuration.nix
               home-manager.darwinModules.home-manager
               inputs.sops-nix.darwinModules.sops
