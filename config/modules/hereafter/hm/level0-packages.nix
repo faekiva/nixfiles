@@ -13,5 +13,6 @@
     pkgs.nil
     pkgs.micro
     pkgs.curl
+    pkgs.tree
   ] ++ lib.optional pkgs.stdenv.isLinux pkgs.busybox;
 }
