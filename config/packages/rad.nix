@@ -5,23 +5,23 @@
   autoPatchelfHook,
 }:
 let
-  version = "0.9.2";
+  version = "0.10.1";
   assets = {
     x86_64-linux = {
       url = "https://github.com/amterp/rad/releases/download/v${version}/rad_linux_amd64.tar.gz";
-      hash = "sha256:02a4430696cfdd0bf152b9f943b6365f5dcde2e571db70bffe5ab2ee4a7b64c1";
+      hash = "sha256-yHrcLo5wprY3T77zXienIO2XaZxNXpEWpAdX0XEqTv0=";
     };
     aarch64-linux = {
       url = "https://github.com/amterp/rad/releases/download/v${version}/rad_linux_arm64.tar.gz";
-      hash = "sha256:f6e2fc596159b4301aac93ef234428904790d300883f235efbfe9cc9b5edfbb4";
+      hash = "sha256-jzWcI5m6g0MTRPv8WaaPAj+nLR7zB1lFqKEytj8pkjI=";
     };
     x86_64-darwin = {
       url = "https://github.com/amterp/rad/releases/download/v${version}/rad_darwin_amd64.tar.gz";
-      hash = "sha256:24066515b843b18cc7a5ae029d7aa5a4781d3c2a9c0f5d59d993a8ada8a0ab3f";
+      hash = "sha256-Xi7gdSBRQvWzhO5xb8tkutTLq2/bAich/BZc2nRIAQY=";
     };
     aarch64-darwin = {
       url = "https://github.com/amterp/rad/releases/download/v${version}/rad_darwin_arm64.tar.gz";
-      hash = "sha256:5f3ee89b614526bf82547fdf97d0d311e848d2904f9878df888d2d41461c17cb";
+      hash = "sha256-r9euxAjSEZoooBBlsaVKXnEopCE3mFjfuDBSF6DvWdY=";
     };
   };
   asset =

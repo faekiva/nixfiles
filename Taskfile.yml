@@ -64,12 +64,39 @@ tasks:
 
   update-go:
     desc: fetch latest stable Go release and patch go.nix
+    vars:
+      LATEST_GO:
+        sh: curl -fsSL 'https://go.dev/dl/?mode=json' | jq -r '.[0].version'
+    status:
+      - grep -q '{{.LATEST_GO}}' config/modules/hereafter/hm/go.nix
     cmds:
-      - scripts/update-go.sh
+      - scripts/update-go.sh {{.LATEST_GO}}
+
+  update-rad:
+    desc: fetch latest rad release and patch rad.nix
+    vars:
+      LATEST_RAD:
+        sh: curl -fsSL 'https://api.github.com/repos/amterp/rad/releases/latest' | jq -r '.tag_name | sub("^v"; "")'
+    status:
+      - grep -q 'version = "{{.LATEST_RAD}}"' config/packages/rad.nix
+    cmds:
+      - scripts/update-github-release.sh config/packages/rad.nix amterp/rad {{.LATEST_RAD}}
+
+  update-radar:
+    desc: fetch latest radar release and patch radar.nix
+    vars:
+      LATEST_RADAR:
+        sh: curl -fsSL 'https://api.github.com/repos/skyhook-io/radar/releases/latest' | jq -r '.tag_name | sub("^v"; "")'
+    status:
+      - grep -q 'version = "{{.LATEST_RADAR}}"' config/packages/radar.nix
+    cmds:
+      - scripts/update-github-release.sh config/packages/radar.nix skyhook-io/radar {{.LATEST_RADAR}}
 
   update:
     desc: updates the system's packages
     cmds:
       - task: update-go
+      - task: update-rad
+      - task: update-radar
       - cmd: cd config && nix flake update
       - task: deploy
