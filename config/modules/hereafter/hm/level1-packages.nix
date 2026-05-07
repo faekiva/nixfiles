@@ -33,6 +33,7 @@ in
     pkgs.fzf
     pkgs.go-task
     pkgs.tmux
+    pkgs.gh
     inputs.git-wt.packages.${pkgs.system}.default
     pkgs.kubectl
 
