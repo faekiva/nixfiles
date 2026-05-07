@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "name": "rad",
+      "type": "github-release",
+      "file": "config/packages/rad.nix",
+      "repo": "amterp/rad"
+    },
+    {
+      "name": "radar",
+      "type": "github-release",
+      "file": "config/packages/radar.nix",
+      "repo": "skyhook-io/radar"
+    },
+    {
+      "name": "go",
+      "type": "go-stable",
+      "file": "config/modules/hereafter/hm/go.nix"
+    }
+  ]
+}

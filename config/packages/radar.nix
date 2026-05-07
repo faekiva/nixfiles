@@ -34,7 +34,8 @@ stdenv.mkDerivation {
     runHook preInstall
 
     mkdir -p $out/bin
-    install -m755 radar $out/bin/radar
+    install -m755 kubectl-radar $out/bin/kubectl-radar
+    ln -s kubectl-radar $out/bin/radar
 
     runHook postInstall
   '';
