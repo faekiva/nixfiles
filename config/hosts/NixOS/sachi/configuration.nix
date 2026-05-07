@@ -35,6 +35,11 @@
     "${inputs.flakeRoot}/modules/services/octo-fiesta.nix"
   ];
 
+  services.tailscale = {
+    extraUpFlags = ["--ssh"];
+    extraSetFlags = ["--ssh"];
+  };
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
