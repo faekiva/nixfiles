@@ -247,6 +247,7 @@ function isFreeModel(m: OpenRouterModel): boolean {
 type KiloReasoningLevel = "minimal" | "low" | "medium" | "high" | "xhigh";
 
 type KiloModelCompat = {
+  supportsDeveloperRole?: boolean;
   cacheControlFormat?: "anthropic";
   requiresReasoningContentOnAssistantMessages?: boolean;
   reasoningEffortMap?: Partial<Record<KiloReasoningLevel, string>>;
@@ -255,7 +256,10 @@ type KiloModelCompat = {
 function getKiloModelCompat(
   m: OpenRouterModel,
 ): ProviderModelConfig["compat"] | undefined {
-  const compat: KiloModelCompat = {};
+  const compat: KiloModelCompat = {
+    // Kilo's gateway does not accept the `developer` role; use `system` instead
+    supportsDeveloperRole: false,
+  };
 
   // Kilo's gateway is OpenRouter-compatible, but it uses api.kilo.ai so
   // pi-ai's URL/provider auto-detection cannot infer OpenRouter model quirks.
