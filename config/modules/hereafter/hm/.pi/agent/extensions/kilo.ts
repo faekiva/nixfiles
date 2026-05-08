@@ -9,6 +9,8 @@
  *   # Then /login kilo, or set KILO_API_KEY=...
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type {
   Api,
   Model,
@@ -362,6 +364,82 @@ const KILO_PROVIDER_CONFIG = {
 };
 
 // =============================================================================
+// Model Cache
+//
+// Persists the full model list to a JSON file next to the extension so it can
+// be loaded synchronously at startup. This ensures the provider is registered
+// with a real model list before any async network call completes, preventing
+// session restore from falling back to a different provider.
+//
+// Falls back to a minimal hardcoded set of kilo-auto/* models on first run
+// (before the cache has ever been written).
+// =============================================================================
+
+const CACHE_PATH = path.join(__dirname, "kilo-models-cache.json");
+
+// Minimal bootstrap fallback — only used on first run before cache exists.
+const KILO_AUTO_MODELS: ProviderModelConfig[] = [
+  {
+    id: "kilo-auto/frontier",
+    name: "Auto Frontier",
+    reasoning: true,
+    input: ["text", "image"],
+    contextWindow: 1000000,
+    maxTokens: 128000,
+    cost: { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 },
+  },
+  {
+    id: "kilo-auto/balanced",
+    name: "Auto Balanced",
+    reasoning: true,
+    input: ["text", "image"],
+    contextWindow: 1000000,
+    maxTokens: 65536,
+    cost: { input: 0.325, output: 1.95, cacheRead: 0.0325, cacheWrite: 0.40625 },
+  },
+  {
+    id: "kilo-auto/small",
+    name: "Auto Small",
+    reasoning: false,
+    input: ["text", "image"],
+    contextWindow: 262144,
+    maxTokens: 32768,
+    cost: { input: 0.05, output: 0.4, cacheRead: 0.005, cacheWrite: 0 },
+  },
+  {
+    id: "kilo-auto/free",
+    name: "Auto Free",
+    reasoning: false,
+    input: ["text"],
+    contextWindow: 256000,
+    maxTokens: 10000,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+  },
+];
+
+function loadModelCache(): ProviderModelConfig[] {
+  try {
+    const raw = fs.readFileSync(CACHE_PATH, "utf8");
+    const parsed = JSON.parse(raw) as ProviderModelConfig[];
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch {
+    // Missing or corrupt cache — fall through to bootstrap models
+  }
+  return KILO_AUTO_MODELS;
+}
+
+function saveModelCache(models: ProviderModelConfig[]): void {
+  try {
+    fs.writeFileSync(CACHE_PATH, JSON.stringify(models, null, 2), "utf8");
+  } catch (error) {
+    console.warn(
+      "[kilo] Failed to write model cache:",
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
+// =============================================================================
 // Extension Entry Point
 // =============================================================================
 
@@ -370,8 +448,10 @@ export default async function (pi: ExtensionAPI) {
   // Used by modifyModels to upgrade the free list without an async fetch.
   let cachedAllModels: ProviderModelConfig[] = [];
 
-  // Free models fetched in the background after provider is registered.
-  let freeModels: ProviderModelConfig[] = [];
+  // Load the persisted model cache synchronously so the provider is registered
+  // with a complete model list before any async work begins.
+  const existingCache = fs.existsSync(CACHE_PATH);
+  let freeModels: ProviderModelConfig[] = loadModelCache();
 
   function makeOAuthConfig() {
     return {
@@ -382,6 +462,7 @@ export default async function (pi: ExtensionAPI) {
         // modelRegistry.refresh() that runs right after login returns.
         try {
           cachedAllModels = await fetchKiloModels({ token: cred.access });
+          saveModelCache(cachedAllModels);
         } catch (error) {
           console.warn(
             "[kilo] Failed to fetch models after login:",
@@ -417,19 +498,27 @@ export default async function (pi: ExtensionAPI) {
     };
   }
 
-  // Register immediately with an empty model list so the provider is available
-  // right away (prevents falling back to a different provider at startup).
+  // Register immediately with the hardcoded auto models so the provider is
+  // available right away and session restore can find kilo-auto/* models.
   // Free models are fetched in the background and the provider is re-registered.
   pi.registerProvider("kilo", {
     ...KILO_PROVIDER_CONFIG,
-    models: [],
+    models: freeModels,
     oauth: makeOAuthConfig(),
   });
 
-  // Fetch free models in the background and re-register to populate them.
+  // Refresh free models in the background. Only write the cache if it didn't
+  // exist yet (first run) — once authed, session_start owns cache updates with
+  // the full model list and we don't want to overwrite it with free-only models.
   fetchKiloModels({ freeOnly: true })
     .then((models) => {
-      freeModels = models;
+      // Ensure kilo-auto/* models are always present even if API omits them
+      const fetchedIds = new Set(models.map((m) => m.id));
+      const missingAuto = KILO_AUTO_MODELS.filter((m) => !fetchedIds.has(m.id));
+      freeModels = [...missingAuto, ...models];
+      if (!existingCache) {
+        saveModelCache(freeModels);
+      }
       pi.registerProvider("kilo", {
         ...KILO_PROVIDER_CONFIG,
         models: freeModels,
@@ -464,6 +553,8 @@ export default async function (pi: ExtensionAPI) {
       return;
     }
     if (cachedAllModels.length > 0) {
+      // Persist the full authenticated model list so next startup loads it.
+      saveModelCache(cachedAllModels);
       // Re-register to trigger modifyModels with the cached data.
       ctx.modelRegistry.registerProvider("kilo", {
         ...KILO_PROVIDER_CONFIG,
