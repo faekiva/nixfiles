@@ -377,6 +377,12 @@ const KILO_PROVIDER_CONFIG = {
 
 const CACHE_PATH = path.join(__dirname, "kilo-models-cache.json");
 
+// Compat shared by all kilo-auto/* bootstrap models — Kilo's gateway does not
+// accept the `developer` role, so pi must convert it to `system`.
+const KILO_AUTO_COMPAT: ProviderModelConfig["compat"] = {
+  supportsDeveloperRole: false,
+};
+
 // Minimal bootstrap fallback — only used on first run before cache exists.
 const KILO_AUTO_MODELS: ProviderModelConfig[] = [
   {
@@ -387,6 +393,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 1000000,
     maxTokens: 128000,
     cost: { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 },
+    compat: KILO_AUTO_COMPAT,
   },
   {
     id: "kilo-auto/balanced",
@@ -396,6 +403,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 1000000,
     maxTokens: 65536,
     cost: { input: 0.325, output: 1.95, cacheRead: 0.0325, cacheWrite: 0.40625 },
+    compat: KILO_AUTO_COMPAT,
   },
   {
     id: "kilo-auto/small",
@@ -405,6 +413,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 262144,
     maxTokens: 32768,
     cost: { input: 0.05, output: 0.4, cacheRead: 0.005, cacheWrite: 0 },
+    compat: KILO_AUTO_COMPAT,
   },
   {
     id: "kilo-auto/free",
@@ -414,6 +423,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 256000,
     maxTokens: 10000,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    compat: KILO_AUTO_COMPAT,
   },
 ];
 
@@ -421,7 +431,14 @@ function loadModelCache(): ProviderModelConfig[] {
   try {
     const raw = fs.readFileSync(CACHE_PATH, "utf8");
     const parsed = JSON.parse(raw) as ProviderModelConfig[];
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Patch stale cache entries that are missing supportsDeveloperRole — this
+      // can happen if the cache was written before this compat flag was added.
+      return parsed.map((m) => {
+        if (m.compat?.supportsDeveloperRole === false) return m;
+        return { ...m, compat: { ...m.compat, supportsDeveloperRole: false } };
+      });
+    }
   } catch {
     // Missing or corrupt cache — fall through to bootstrap models
   }
