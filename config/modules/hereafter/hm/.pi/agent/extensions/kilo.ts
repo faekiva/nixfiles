@@ -366,20 +366,12 @@ const KILO_PROVIDER_CONFIG = {
 // =============================================================================
 
 export default async function (pi: ExtensionAPI) {
-  // Fetch free models at load time so the provider is immediately usable.
-  let freeModels: ProviderModelConfig[] = [];
-  try {
-    freeModels = await fetchKiloModels({ freeOnly: true });
-  } catch (error) {
-    console.warn(
-      "[kilo] Failed to fetch free models at startup:",
-      error instanceof Error ? error.message : error,
-    );
-  }
-
   // Full model list cached after login or session_start (when already logged in).
   // Used by modifyModels to upgrade the free list without an async fetch.
   let cachedAllModels: ProviderModelConfig[] = [];
+
+  // Free models fetched in the background after provider is registered.
+  let freeModels: ProviderModelConfig[] = [];
 
   function makeOAuthConfig() {
     return {
@@ -425,13 +417,31 @@ export default async function (pi: ExtensionAPI) {
     };
   }
 
-  // Always register with free models. modifyModels upgrades to full list
-  // when credentials exist, and naturally falls back after logout.
+  // Register immediately with an empty model list so the provider is available
+  // right away (prevents falling back to a different provider at startup).
+  // Free models are fetched in the background and the provider is re-registered.
   pi.registerProvider("kilo", {
     ...KILO_PROVIDER_CONFIG,
-    models: freeModels,
+    models: [],
     oauth: makeOAuthConfig(),
   });
+
+  // Fetch free models in the background and re-register to populate them.
+  fetchKiloModels({ freeOnly: true })
+    .then((models) => {
+      freeModels = models;
+      pi.registerProvider("kilo", {
+        ...KILO_PROVIDER_CONFIG,
+        models: freeModels,
+        oauth: makeOAuthConfig(),
+      });
+    })
+    .catch((error) => {
+      console.warn(
+        "[kilo] Failed to fetch free models at startup:",
+        error instanceof Error ? error.message : error,
+      );
+    });
 
   // After session starts, pre-fetch all models if already logged in so
   // modifyModels has data to work with. Also fetch and display credits.
