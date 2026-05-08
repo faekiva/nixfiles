@@ -1,0 +1,13 @@
+{
+  "providers": {
+    "amazon-bedrock": {
+      "models": []
+    },
+    "anthropic": {
+      "models": []
+    },
+    "openrouter": {
+      "models": []
+    }
+  }
+}

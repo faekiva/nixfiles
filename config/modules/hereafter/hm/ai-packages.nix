@@ -1,6 +1,5 @@
 {
   inputs,
-  lib,
   pkgs,
   ...
 }:
@@ -27,8 +26,5 @@ in
     inputs.llm-agents.packages.${pkgs.system}.pi
   ];
 
-  home.file = lib.mapAttrs' (name: _: {
-    name = ".pi/agent/extensions/${name}";
-    value.source = ./pi-extensions/${name};
-  }) (builtins.readDir ./pi-extensions);
+  home.file.".pi/agent".source = ./.pi/agent;
 }
