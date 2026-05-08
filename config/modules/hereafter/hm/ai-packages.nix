@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   pkgs,
   ...
 }:
@@ -26,5 +27,14 @@ in
     inputs.llm-agents.packages.${pkgs.system}.pi
   ];
 
-  home.file.".pi/agent".source = ./.pi/agent;
+  home.file.".pi/agent" = {
+    source = ./.pi/agent;
+    force = true;
+  };
+
+  home.activation.removePiAgentDir = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+    if [ -d "$HOME/.pi/agent" ] && [ ! -L "$HOME/.pi/agent" ]; then
+      rm -rf "$HOME/.pi/agent"
+    fi
+  '';
 }
