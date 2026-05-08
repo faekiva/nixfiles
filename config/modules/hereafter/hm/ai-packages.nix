@@ -25,4 +25,6 @@ in
     kilocode-with-alias
     inputs.llm-agents.packages.${pkgs.system}.pi
   ];
+
+  home.file.".pi/agent/extensions/kilo.ts".source = ./pi-extensions/kilo.ts;
 }
