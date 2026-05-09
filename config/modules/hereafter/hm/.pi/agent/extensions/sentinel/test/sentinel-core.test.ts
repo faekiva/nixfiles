@@ -23,6 +23,8 @@ import {
   sumInputTokens,
   avgCacheRatio,
   analyzeToolCallRepetition,
+  SENTINEL_TRIGGER,
+  AUTO_ABORT_THRESHOLD,
 } from "../src/sentinel-core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -64,7 +66,7 @@ describe("loop session fixture", () => {
     const ca = countConsecutiveAssistant(entries);
     const calls = extractToolCalls(entries);
     const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
-    expect(breakdown.total).toBeGreaterThan(0.55);
+    expect(breakdown.total).toBeGreaterThan(AUTO_ABORT_THRESHOLD);
   });
 
   it("scores above the sentinel trigger threshold", () => {
@@ -72,7 +74,7 @@ describe("loop session fixture", () => {
     const ca = countConsecutiveAssistant(entries);
     const calls = extractToolCalls(entries);
     const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
-    expect(breakdown.total).toBeGreaterThan(0.15);
+    expect(breakdown.total).toBeGreaterThan(SENTINEL_TRIGGER);
   });
 
   it("shows score progression — crosses sentinel threshold eventually", () => {
@@ -85,8 +87,8 @@ describe("loop session fixture", () => {
       const ca = countConsecutiveAssistant(slice);
       const calls = extractToolCalls(slice);
       const score = calcHeuristicScore(blocks, ca, calls, slice).total;
-      if (score >= 0.15) crossedSentinel = true;
-      if (score >= 0.55) crossedAbort = true;
+      if (score >= SENTINEL_TRIGGER) crossedSentinel = true;
+      if (score >= AUTO_ABORT_THRESHOLD) crossedAbort = true;
     }
     expect(crossedSentinel).toBe(true);
     expect(crossedAbort).toBe(true);
@@ -105,7 +107,107 @@ describe("normal session fixture", () => {
     const ca = countConsecutiveAssistant(entries);
     const calls = extractToolCalls(entries);
     const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
-    expect(breakdown.total).toBeLessThan(0.55);
+    expect(breakdown.total).toBeLessThan(AUTO_ABORT_THRESHOLD);
+  });
+});
+
+// =============================================================================
+// False positive — sentinel triggered on a normal productive session
+// Session: "why is the sentinel pi extension called src in the pi gui?"
+// Sentinel aborted things (3x) but this was NOT thrashing — just a normal
+// multi-turn conversation with tool calls and a few aborted attempts.
+//
+// The heuristic correctly flags it (score > 0.15) — that's its job as a canary.
+// The false positive was Qwen blindly confirming. The judge model should clear it.
+// =============================================================================
+
+describe("sentinel false-positive session", () => {
+  const entries = loadFixture("sentinel-false-positive.json");
+
+  it("has session data", () => {
+    expect(entries.length).toBeGreaterThan(0);
+  });
+
+  it("extracts thinking blocks", () => {
+    const blocks = extractThinkingBlocks(entries);
+    expect(blocks.length).toBeGreaterThan(0);
+  });
+
+  it("extracts tool calls", () => {
+    const calls = extractToolCalls(entries);
+    expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it("is flagged by the heuristic (expected — triggers the filter model)", () => {
+    const blocks = extractThinkingBlocks(entries);
+    const ca = countConsecutiveAssistant(entries);
+    const calls = extractToolCalls(entries);
+    const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
+    expect(breakdown.total).toBeGreaterThan(SENTINEL_TRIGGER);
+  });
+
+  it("stays below the auto-abort threshold (so judge gets a say)", () => {
+    const blocks = extractThinkingBlocks(entries);
+    const ca = countConsecutiveAssistant(entries);
+    const calls = extractToolCalls(entries);
+    const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
+    expect(breakdown.total).toBeLessThan(AUTO_ABORT_THRESHOLD);
+  });
+
+  it("shows score progression — crosses sentinel threshold mid-session", () => {
+    // The heuristic should flag this session at some point as it grows
+    let crossedSentinel = false;
+    let crossedAbort = false;
+    for (let i = 10; i <= entries.length; i += 5) {
+      const slice = entries.slice(0, i);
+      const blocks = extractThinkingBlocks(slice);
+      const ca = countConsecutiveAssistant(slice);
+      const calls = extractToolCalls(slice);
+      const score = calcHeuristicScore(blocks, ca, calls, slice).total;
+      if (score >= SENTINEL_TRIGGER) crossedSentinel = true;
+      if (score >= AUTO_ABORT_THRESHOLD) crossedAbort = true;
+    }
+    expect(crossedSentinel).toBe(true);
+    // Should NOT reach auto-abort territory — this was a productive conversation
+    expect(crossedAbort).toBe(false);
+  });
+});
+
+// =============================================================================
+// False positive #2 — current session itself triggered sentinel
+// User was working on the sentinel extension when sentinel falsely accused
+// thinking block 4 of "back-and-forth re-evaluation" (discussing how to handle
+// the failing test). Score: 0.24, confidence: 75%, call count: 9.
+//
+// Same deal: heuristic flags it correctly, judge should clear it.
+// =============================================================================
+
+describe("sentinel false-positive session #2 (current session)", () => {
+  const entries = loadFixture("current-session-false-positive.json");
+
+  it("has session data", () => {
+    expect(entries.length).toBeGreaterThan(0);
+  });
+
+  it("extracts thinking blocks", () => {
+    const blocks = extractThinkingBlocks(entries);
+    expect(blocks.length).toBeGreaterThan(0);
+  });
+
+  it("is flagged by the heuristic (expected — triggers the filter model)", () => {
+    const blocks = extractThinkingBlocks(entries);
+    const ca = countConsecutiveAssistant(entries);
+    const calls = extractToolCalls(entries);
+    const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
+    expect(breakdown.total).toBeGreaterThan(SENTINEL_TRIGGER);
+  });
+
+  it("stays below the auto-abort threshold (so judge gets a say)", () => {
+    const blocks = extractThinkingBlocks(entries);
+    const ca = countConsecutiveAssistant(entries);
+    const calls = extractToolCalls(entries);
+    const breakdown = calcHeuristicScore(blocks, ca, calls, entries);
+    expect(breakdown.total).toBeLessThan(AUTO_ABORT_THRESHOLD);
   });
 });
 

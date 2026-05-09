@@ -2,11 +2,11 @@
  * Sentinel Extension
  *
  * Detects agent loops by analyzing thinking patterns, tool call behavior,
- * and turn counts. Uses a two-tier approach:
+ * and turn counts. Uses a three-tier approach:
  *
  * 1. Heuristic analysis (free, instant) — flags suspicious sessions
- * 2. LLM confirmation (pennies per check) — cheap sentinel model reviews
- *    flagged sessions before aborting
+ * 2. Qwen3.5-flash filter (cheap) — quick scan, prone to false positives
+ * 3. MiniMax M2.7 judge (more expensive) — final call before aborting
  *
  * Detection runs on `turn_end` (every assistant turn), so it catches
  * mid-run loops where the agent keeps calling tools in a cycle.
@@ -27,6 +27,10 @@ import {
   extractToolCalls,
   calcHeuristicScore,
   sumInputTokens,
+  SENTINEL_TRIGGER,
+  AUTO_ABORT_THRESHOLD,
+  STRICT_SENTINEL_TRIGGER,
+  STRICT_AUTO_ABORT_THRESHOLD,
 } from "./sentinel-core";
 
 // =============================================================================
@@ -35,21 +39,18 @@ import {
 
 const KILO_API_BASE = process.env.KILO_API_URL || "https://api.kilo.ai";
 const KILO_GATEWAY_BASE = `${KILO_API_BASE}/api/gateway`;
+
+// Tier 2 — cheap filter, fast but prone to false positives
 const SENTINEL_MODEL = "qwen/qwen3.5-flash-02-23";
+// Tier 3 — final judge, slower but more reliable
+const JUDGE_MODEL = "kilo/minimax/minimax-m2.7";
+
 const MAX_THINKING_HISTORY = 7;
 const SENTINEL_TIMEOUT_MS = 8000;
+const JUDGE_TIMEOUT_MS = 12000;
 
 // Skip checks for early turns (need some data first)
 const MIN_TURNS_BEFORE_CHECK = 3;
-
-// Heuristic threshold for auto-abort WITHOUT LLM confirmation.
-const AUTO_ABORT_THRESHOLD = 0.55;
-const STRICT_AUTO_ABORT_THRESHOLD = 0.40;
-
-// Threshold above which we escalate to the LLM sentinel for confirmation.
-// Kept low — the sentinel is cheap, so we call it early.
-const SENTINEL_TRIGGER = 0.15;
-const STRICT_SENTINEL_TRIGGER = 0.10;
 
 // =============================================================================
 // State Management
@@ -61,6 +62,7 @@ interface SentinelState {
   loopDetected: boolean;
   checkCount: number;
   sentinelCalls: number;
+  judgeCalls: number;
   /** Turns checked this run — reset on turn_start to debounce */
   turnsInCurrentRun: number;
 }
@@ -76,6 +78,7 @@ function getState(sessionFile: string | undefined): SentinelState {
       loopDetected: false,
       checkCount: 0,
       sentinelCalls: 0,
+      judgeCalls: 0,
       turnsInCurrentRun: 0,
     });
   }
@@ -102,6 +105,32 @@ Respond with a JSON object containing:
 - "looping": boolean — true if the agent appears stuck in a loop
 - "confidence": number between 0 and 1 — how sure you are
 - "reason": string — brief explanation of what you observed
+
+Output ONLY the JSON. No markdown, no code fences, no explanation.`;
+
+const JUDGE_SYSTEM_PROMPT = `You are an appellate judge for an AI loop-detection system.
+
+A cheaper model flagged the following thinking blocks as a potential loop.
+Your job is to make the final call: is this genuinely a loop, or just
+productive deliberation?
+
+Signs of a real loop:
+- The agent is literally repeating the same steps with no progress
+- It reads the same file or runs the same command multiple times without learning anything new
+- It asks itself the same question over and over
+- Each thinking block is substantively identical to the previous one
+
+Signs this is NOT a loop (let it continue):
+- The agent is exploring different approaches and making progress
+- It's reading new files to gather new information
+- Self-questioning that leads to new conclusions or decisions
+- Normal deliberation before committing to a plan
+- The agent learns from tool results and changes its approach
+
+Respond with a JSON object containing:
+- "looping": boolean — true only if this is clearly a loop
+- "confidence": number between 0 and 1 — how sure you are
+- "reason": string — brief explanation of your ruling
 
 Output ONLY the JSON. No markdown, no code fences, no explanation.`;
 
@@ -132,6 +161,67 @@ async function callSentinelModel(
             { role: "user", content },
           ],
           max_tokens: 120,
+          temperature: 0,
+          response_format: { type: "json_object" },
+        }),
+        signal: controller.signal,
+      },
+    );
+
+    clearTimeout(timeout);
+
+    if (!response.ok) return null;
+
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const text = data.choices?.[0]?.message?.content ?? "";
+
+    const result = extractJsonObject(text);
+    if (!result) return null;
+
+    return JSON.parse(result) as {
+      looping: boolean;
+      confidence: number;
+      reason: string;
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function callJudgeModel(
+  token: string,
+  thinkingBlocks: string[],
+  sentinelResult: { looping: boolean; confidence: number; reason: string },
+): Promise<{ looping: boolean; confidence: number; reason: string } | null> {
+  try {
+    const content =
+      `The filter model flagged this as a loop. Its analysis:\n\n` +
+      `${sentinelResult.reason}\n\n` +
+      `--- Agent thinking blocks ---\n` +
+      thinkingBlocks
+        .map((b, i) => `--- Thinking block ${i + 1} ---\n${b}`)
+        .join("\n\n");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), JUDGE_TIMEOUT_MS);
+
+    const response = await fetch(
+      `${KILO_GATEWAY_BASE}/v1/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: JUDGE_MODEL,
+          messages: [
+            { role: "system", content: JUDGE_SYSTEM_PROMPT },
+            { role: "user", content },
+          ],
+          max_tokens: 150,
           temperature: 0,
           response_format: { type: "json_object" },
         }),
@@ -279,7 +369,7 @@ async function checkForLoop(ctx: ExtensionContext) {
     return;
   }
 
-  // Between sentinel and abort threshold — ask the cheap LLM
+  // Between sentinel and abort threshold — ask the cheap filter LLM
   const cred = ctx.modelRegistry.authStorage.get("kilo");
   if (cred?.type !== "oauth") return;
 
@@ -289,14 +379,32 @@ async function checkForLoop(ctx: ExtensionContext) {
     thinkingBlocks.slice(-5),
   );
 
-  if (sentinelResult?.looping && sentinelResult.confidence >= 0.55) {
+  // Filter model says no loop — we're clear
+  if (!sentinelResult?.looping || sentinelResult.confidence < 0.55) {
+    ctx.ui.setStatus(
+      "sentinel",
+      ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by filter)`),
+    );
+    return;
+  }
+
+  // Filter model says yes — escalate to the judge for a final ruling
+  state.judgeCalls++;
+  const judgeResult = await callJudgeModel(
+    cred.access,
+    thinkingBlocks.slice(-5),
+    sentinelResult,
+  );
+
+  if (judgeResult?.looping && judgeResult.confidence >= 0.55) {
     state.loopDetected = true;
     ctx.ui.notify(
       `🚨 Sentinel confirmed a loop!\n\n` +
-        `Reason: ${sentinelResult.reason}\n` +
+        `Filter (Qwen): ${sentinelResult.reason}\n` +
+        `Judge (M2.7): ${judgeResult.reason}\n` +
         `Heuristic score: ${breakdown.total.toFixed(2)} | ` +
-        `Sentinel confidence: ${(sentinelResult.confidence * 100).toFixed(0)}%\n` +
-        `Sentinel calls this session: ${state.sentinelCalls}\n\n` +
+        `Judge confidence: ${(judgeResult.confidence * 100).toFixed(0)}%\n` +
+        `Sentinel calls: ${state.sentinelCalls} | Judge calls: ${state.judgeCalls}\n\n` +
         `Aborting to prevent runaway costs. Run /sentinel reset to re-enable.`,
       "error",
     );
@@ -304,10 +412,10 @@ async function checkForLoop(ctx: ExtensionContext) {
     return;
   }
 
-  // Sentinel said "not a loop" — show score
+  // Judge said "not a loop" — show score
   ctx.ui.setStatus(
     "sentinel",
-    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared)`),
+    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by judge)`),
   );
 }
 
@@ -342,6 +450,7 @@ export default function (pi: ExtensionAPI) {
       loopDetected: false,
       checkCount: 0,
       sentinelCalls: 0,
+      judgeCalls: 0,
       turnsInCurrentRun: 0,
     });
   });
@@ -366,7 +475,7 @@ export default function (pi: ExtensionAPI) {
             `Mode:      ${state.strict ? "🔴 Strict (sentinel ≥0.10, abort ≥0.40)" : "🟡 Normal (sentinel ≥0.15, abort ≥0.55)"}\n` +
             `Loop detected: ${state.loopDetected ? "⛔ Yes (use /sentinel reset)" : "No"}\n` +
             `Checks:    ${state.checkCount}\n` +
-            `LLM calls: ${state.sentinelCalls}`,
+            `Filter calls: ${state.sentinelCalls} | Judge calls: ${state.judgeCalls}`,
           "info",
         );
         return;
@@ -405,6 +514,7 @@ export default function (pi: ExtensionAPI) {
         state.loopDetected = false;
         state.checkCount = 0;
         state.sentinelCalls = 0;
+        state.judgeCalls = 0;
         ctx.ui.notify("Sentinel state reset — detection re-enabled for this session.", "success");
         return;
       }
