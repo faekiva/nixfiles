@@ -9,12 +9,9 @@
 // Thresholds
 // =============================================================================
 
-/** Above this, escalate to the filter model for review */
-export const SENTINEL_TRIGGER = 0.15;
 /** Above this, auto-abort without LLM confirmation */
 export const AUTO_ABORT_THRESHOLD = 0.55;
-/** Strict mode variants */
-export const STRICT_SENTINEL_TRIGGER = 0.10;
+/** Strict mode variant */
 export const STRICT_AUTO_ABORT_THRESHOLD = 0.40;
 
 // =============================================================================

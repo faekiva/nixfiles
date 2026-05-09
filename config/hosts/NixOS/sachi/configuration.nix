@@ -33,6 +33,7 @@
     "${inputs.flakeRoot}/modules/services/navidrome.nix"
     "${inputs.flakeRoot}/modules/services/restic-immich.nix"
     "${inputs.flakeRoot}/modules/services/octo-fiesta.nix"
+    "${inputs.flakeRoot}/modules/services/channels-dvr.nix"
   ];
 
   services.tailscale = {
