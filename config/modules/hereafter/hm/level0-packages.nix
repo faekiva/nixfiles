@@ -14,5 +14,6 @@
     pkgs.micro
     pkgs.curl
     pkgs.tree
+    pkgs.less
   ] ++ lib.optional pkgs.stdenv.isLinux pkgs.busybox;
 }
