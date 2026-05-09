@@ -1,6 +1,6 @@
 ---
 name: pi-setup
-description: Manage and iterate on the pi coding agent configuration for this nixfiles repo. Use when editing pi extensions, settings, skills, prompt templates, or themes managed through home-manager, or when deploying and testing pi config changes. Covers extensions, settings.json, packages, and the deploy/test loop.
+description: Use whenever the user mentions "pi" in this repo. Covers the pi coding agent configuration managed through home-manager — including editing extensions, settings, skills, prompt templates, themes, deploying and testing config changes, troubleshooting pi behavior, and general pi-related questions. Also covers settings.json, packages, extensions, and the deploy/test loop.
 ---
 
 # Pi Setup
