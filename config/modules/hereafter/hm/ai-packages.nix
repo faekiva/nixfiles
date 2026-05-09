@@ -21,7 +21,7 @@
 {
   home.packages = [
     inputs.llm-agents.packages.${pkgs.system}.claude-code
-    # inputs.decapod.packages.${pkgs.system}.default # waiting for new version
+    inputs.decapod.packages.${pkgs.system}.default
     # cco
     # kilocode-with-alias
     inputs.llm-agents.packages.${pkgs.system}.pi
