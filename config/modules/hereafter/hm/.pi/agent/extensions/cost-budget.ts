@@ -12,8 +12,7 @@
  * Default: $1 per session.
  */
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Type } from "typebox";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 // =============================================================================
 // State
@@ -61,53 +60,50 @@ export function budgetStatusStr(cost: number, limit: number): string {
 // =============================================================================
 
 export default function (pi: ExtensionAPI) {
-  // Abort agent when budget is exceeded
-  pi.on("before_agent_start", async (_event, ctx) => {
+  // Check budget + abort on EVERY turn (mid-loop, not just on user messages)
+  pi.on("turn_end", async (_event, ctx) => {
     const budget = getBudget(ctx.sessionManager.getSessionFile());
-    const cost = calcSessionCost(ctx);
 
-    if (cost >= budget.limit) {
-      if (!budget.aborted) {
+    // Abort check
+    if (isFinite(budget.limit)) {
+      const cost = calcSessionCost(ctx);
+
+      if (cost >= budget.limit && !budget.aborted) {
         budget.aborted = true;
         ctx.ui.notify(
           `⛔ Budget exceeded! Session cost: $${cost.toFixed(2)} (limit: $${budget.limit.toFixed(2)})\nRun /budget to raise the limit or /new to start fresh.`,
           "error",
         );
+        ctx.abort();
+        return;
       }
-      ctx.abort();
-      return;
-    }
 
-    // Warn at 80%
-    if (cost >= budget.limit * 0.8 && !budget.warned) {
-      budget.warned = true;
-      ctx.ui.notify(
-        `⚠️ Session cost $${cost.toFixed(2)} is approaching the $${budget.limit.toFixed(2)} budget.`,
-        "warning",
-      );
-    }
-  });
+      // Warn at 80%
+      if (cost >= budget.limit * 0.8 && !budget.warned) {
+        budget.warned = true;
+        ctx.ui.notify(
+          `⚠️ Session cost $${cost.toFixed(2)} is approaching the $${budget.limit.toFixed(2)} budget.`,
+          "warning",
+        );
+      }
 
-  // Update budget status in footer after each turn
-  pi.on("turn_end", async (_event, ctx) => {
-    if (!ctx.hasUI) return;
-    const budget = getBudget(ctx.sessionManager.getSessionFile());
-    if (!isFinite(budget.limit)) {
-      ctx.ui.setStatus("budget", undefined);
-      return;
-    }
-    const cost = calcSessionCost(ctx);
-    const bStr = budgetStatusStr(cost, budget.limit);
-    const bPct = (cost / budget.limit) * 100;
-    let display: string;
-    if (bPct > 90) {
-      display = ctx.ui.theme.fg("error", `💲 ${bStr}`);
-    } else if (bPct > 70) {
-      display = ctx.ui.theme.fg("warning", `💲 ${bStr}`);
+      // Footer status
+      if (ctx.hasUI) {
+        const bStr = budgetStatusStr(cost, budget.limit);
+        const bPct = (cost / budget.limit) * 100;
+        let display: string;
+        if (bPct > 90) {
+          display = ctx.ui.theme.fg("error", `💲 ${bStr}`);
+        } else if (bPct > 70) {
+          display = ctx.ui.theme.fg("warning", `💲 ${bStr}`);
+        } else {
+          display = ctx.ui.theme.fg("dim", `💲 ${bStr}`);
+        }
+        ctx.ui.setStatus("budget", display);
+      }
     } else {
-      display = ctx.ui.theme.fg("dim", `💲 ${bStr}`);
+      if (ctx.hasUI) ctx.ui.setStatus("budget", undefined);
     }
-    ctx.ui.setStatus("budget", display);
   });
 
   // Reset flags and show budget on session switch
