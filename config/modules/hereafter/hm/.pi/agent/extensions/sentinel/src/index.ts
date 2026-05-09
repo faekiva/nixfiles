@@ -63,8 +63,10 @@ interface SentinelState {
   checkCount: number;
   sentinelCalls: number;
   judgeCalls: number;
-  /** Turns checked this run — reset on turn_start to debounce */
-  turnsInCurrentRun: number;
+  judgeDenials: number;
+  /** Heuristic penalty added to the sentinel trigger after each judge denial.
+   *  Increases by 0.1 per denial so the score must grow before re-escalating. */
+  heuristicPenalty: number;
 }
 
 const sessionStates = new Map<string, SentinelState>();
@@ -79,7 +81,8 @@ function getState(sessionFile: string | undefined): SentinelState {
       checkCount: 0,
       sentinelCalls: 0,
       judgeCalls: 0,
-      turnsInCurrentRun: 0,
+      judgeDenials: 0,
+      heuristicPenalty: 0,
     });
   }
   return sessionStates.get(key)!;
@@ -360,8 +363,9 @@ async function checkForLoop(ctx: ExtensionContext) {
     return;
   }
 
-  // Below sentinel trigger — nothing to do
-  if (breakdown.total < sentinelThreshold) {
+  // Below sentinel trigger (plus any penalty from prior judge denials) — nothing to do
+  const effectiveThreshold = sentinelThreshold + state.heuristicPenalty;
+  if (breakdown.total < effectiveThreshold) {
     ctx.ui.setStatus(
       "sentinel",
       ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)}`),
@@ -412,10 +416,12 @@ async function checkForLoop(ctx: ExtensionContext) {
     return;
   }
 
-  // Judge said "not a loop" — show score
+  // Judge said "not a loop" — raise the heuristic bar before re-escalating
+  state.judgeDenials++;
+  state.heuristicPenalty += 0.1;
   ctx.ui.setStatus(
     "sentinel",
-    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by judge)`),
+    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by judge, penalty +${state.heuristicPenalty.toFixed(1)})`),
   );
 }
 
@@ -451,7 +457,8 @@ export default function (pi: ExtensionAPI) {
       checkCount: 0,
       sentinelCalls: 0,
       judgeCalls: 0,
-      turnsInCurrentRun: 0,
+      judgeDenials: 0,
+      heuristicPenalty: 0,
     });
   });
 
@@ -475,7 +482,8 @@ export default function (pi: ExtensionAPI) {
             `Mode:      ${state.strict ? "🔴 Strict (sentinel ≥0.10, abort ≥0.40)" : "🟡 Normal (sentinel ≥0.15, abort ≥0.55)"}\n` +
             `Loop detected: ${state.loopDetected ? "⛔ Yes (use /sentinel reset)" : "No"}\n` +
             `Checks:    ${state.checkCount}\n` +
-            `Filter calls: ${state.sentinelCalls} | Judge calls: ${state.judgeCalls}`,
+            `Filter calls: ${state.sentinelCalls} | Judge calls: ${state.judgeCalls}\n` +
+            `Judge denials: ${state.judgeDenials} | Heuristic penalty: +${state.heuristicPenalty.toFixed(1)}`,
           "info",
         );
         return;
@@ -515,6 +523,8 @@ export default function (pi: ExtensionAPI) {
         state.checkCount = 0;
         state.sentinelCalls = 0;
         state.judgeCalls = 0;
+        state.judgeDenials = 0;
+        state.heuristicPenalty = 0;
         ctx.ui.notify("Sentinel state reset — detection re-enabled for this session.", "success");
         return;
       }
