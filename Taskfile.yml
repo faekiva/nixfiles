@@ -64,3 +64,8 @@ tasks:
       - scripts/refresh-updates.sh
       - cmd: cd config && nix flake update
       - task: deploy
+
+  rollback:
+    desc: pick a previous system generation and activate it
+    cmds:
+      - scripts/rollback.sh
