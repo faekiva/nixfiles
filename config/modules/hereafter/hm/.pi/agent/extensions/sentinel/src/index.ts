@@ -379,7 +379,7 @@ async function checkForLoop(ctx: ExtensionContext) {
   const tPreSentinel = Date.now();
   ctx.ui.setStatus(
     "sentinel",
-    ctx.ui.theme.fg("yellow", `🛡️ calling filter… (${tPreSentinel - t0}ms)`),
+    ctx.ui.theme.fg("warning", `🛡️ calling filter… (${tPreSentinel - t0}ms)`),
   );
 
   state.sentinelCalls++;
