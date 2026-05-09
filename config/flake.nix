@@ -29,8 +29,8 @@
     atuin.inputs.nixpkgs.follows = "nixpkgs";
 
     decapod = {
-      url = "github:faekiva/decapod";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:DecapodLabs/decapod";
+      flake = false;
     };
 
     # Nix-index-database - for comma and command-not-found

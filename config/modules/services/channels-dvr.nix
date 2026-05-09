@@ -7,6 +7,12 @@
 
   networking.firewall.allowedTCPPorts = [ 8089 ];
 
+  # Ensure mount directories exist before the container starts
+  systemd.tmpfiles.rules = [
+    "d /mnt/prodigy/mojo/dvr/channels/config 0755 root root -"
+    "d /mnt/prodigy/mojo/dvr/channels/recordings 0755 root root -"
+  ];
+
   # Containers
   virtualisation.oci-containers.containers."channels-dvr" = {
     image = "fancybits/channels-dvr:latest";
@@ -32,6 +38,7 @@
     startLimitBurst = 10;
     unitConfig = {
       StartLimitIntervalSec = lib.mkOverride 90 "infinity";
+      RequiresMountsFor = "/mnt/prodigy";
     };
     partOf = [
       "podman-compose-channels-dvr-root.target"
