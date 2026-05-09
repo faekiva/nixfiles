@@ -556,7 +556,7 @@ export default async function (pi: ExtensionAPI) {
 
     // Clear credits if not logged in
     if (cred?.type !== "oauth") {
-      ctx.ui.setStatus("kilo-credits", undefined);
+      if (ctx.hasUI) ctx.ui.setStatus("kilo-credits", undefined);
       return;
     }
 
@@ -581,25 +581,28 @@ export default async function (pi: ExtensionAPI) {
     }
 
     // Fetch and display credits balance
-    try {
-      const balance = await fetchKiloBalance(cred.access);
-      if (balance !== null) {
-        const theme = ctx.ui.theme;
-        ctx.ui.setStatus(
-          "kilo-credits",
-          theme.fg("accent", `💰 ${formatCredits(balance)}`),
+    if (ctx.hasUI) {
+      try {
+        const balance = await fetchKiloBalance(cred.access);
+        if (balance !== null) {
+          const theme = ctx.ui.theme;
+          ctx.ui.setStatus(
+            "kilo-credits",
+            theme.fg("accent", `💰 ${formatCredits(balance)}`),
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "[kilo] Failed to fetch balance:",
+          error instanceof Error ? error.message : error,
         );
       }
-    } catch (error) {
-      console.warn(
-        "[kilo] Failed to fetch balance:",
-        error instanceof Error ? error.message : error,
-      );
     }
   });
 
   // Update credits display when model changes to a Kilo model
   pi.on("model_select", async (event, ctx) => {
+    if (!ctx.hasUI) return;
     if (event.model?.provider !== "kilo") return;
 
     const cred = ctx.modelRegistry.authStorage.get("kilo");
@@ -624,6 +627,7 @@ export default async function (pi: ExtensionAPI) {
 
   // Refresh credits after each turn
   pi.on("turn_end", async (_event, ctx) => {
+    if (!ctx.hasUI) return; // No UI in print/batch mode — skip to avoid stale ctx errors
     const cred = ctx.modelRegistry.authStorage.get("kilo");
     if (cred?.type !== "oauth") return;
 
@@ -670,6 +674,7 @@ export default async function (pi: ExtensionAPI) {
 
   // Use custom footer to show credits inline with token stats
   pi.on("session_start", async (_event, ctx) => {
+    if (!ctx.hasUI) return;
     ctx.ui.setFooter((tui, theme, footerData) => {
       const unsubBranch = footerData.onBranchChange(() => tui.requestRender());
 
