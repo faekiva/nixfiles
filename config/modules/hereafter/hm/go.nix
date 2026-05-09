@@ -28,13 +28,6 @@ let
 
     src = pkgs.fetchurl { inherit (asset) url hash; };
 
-    nativeBuildInputs = lib.optionals pkgs.stdenv.isLinux [
-      pkgs.autoPatchelfHook
-    ];
-    buildInputs = lib.optionals pkgs.stdenv.isLinux [
-      pkgs.stdenv.cc.cc.lib
-    ];
-
     dontConfigure = true;
     dontBuild = true;
     dontStrip = true;
