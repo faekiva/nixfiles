@@ -2,7 +2,7 @@
   "name": "sentinel",
   "type": "module",
   "pi": {
-    "extensions": ["./src/index.ts"]
+    "extensions": ["./index.ts"]
   },
   "scripts": {
     "test": "vitest run",
