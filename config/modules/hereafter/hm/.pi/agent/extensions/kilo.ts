@@ -18,6 +18,7 @@ import type {
   OAuthLoginCallbacks,
 } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ProviderModelConfig } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
 import { visibleWidth } from "@earendil-works/pi-tui";
 
 // =============================================================================
@@ -367,6 +368,43 @@ async function fetchKiloModels(options?: {
 // Provider Config
 // =============================================================================
 
+// =============================================================================
+// Cost Budget Management
+// =============================================================================
+
+/** Per-session budget state — keys are session file paths */
+interface SessionBudget {
+  limit: number;       // Dollar limit for this session
+  warned: boolean;     // Whether we've shown the 80% warning
+  aborted: boolean;    // Whether we've already aborted for budget
+}
+
+const sessionBudgets = new Map<string, SessionBudget>();
+const DEFAULT_BUDGET = 1.0; // Default $1 per session
+
+function getBudget(sessionFile: string | undefined): SessionBudget {
+  const key = sessionFile ?? "__ephemeral__";
+  if (!sessionBudgets.has(key)) {
+    sessionBudgets.set(key, { limit: DEFAULT_BUDGET, warned: false, aborted: false });
+  }
+  return sessionBudgets.get(key)!;
+}
+
+function calcSessionCost(ctx: { sessionManager: { getEntries: () => Array<any> } }): number {
+  let total = 0;
+  for (const entry of ctx.sessionManager.getEntries()) {
+    if (entry.type === "message" && entry.message.role === "assistant") {
+      total += entry.message.usage.cost.total;
+    }
+  }
+  return total;
+}
+
+function budgetStatusStr(cost: number, limit: number): string {
+  const pct = Math.min((cost / limit) * 100, 100);
+  return `$${cost.toFixed(2)}/$${limit.toFixed(0)} (${pct.toFixed(0)}%)`;
+}
+
 const KILO_PROVIDER_CONFIG = {
   baseUrl: KILO_GATEWAY_BASE,
   apiKey: "KILO_API_KEY",
@@ -586,6 +624,93 @@ export default async function (pi: ExtensionAPI) {
       );
     });
 
+  // =============================================================================
+  // Cost Budget — abort agent when session cost exceeds the limit
+  // =============================================================================
+
+  pi.on("before_agent_start", async (_event, ctx) => {
+    const budget = getBudget(ctx.sessionManager.getSessionFile());
+    const cost = calcSessionCost(ctx);
+
+    if (cost >= budget.limit) {
+      if (!budget.aborted) {
+        budget.aborted = true;
+        ctx.ui.notify(
+          `⛔ Budget exceeded! Session cost: $${cost.toFixed(2)} (limit: $${budget.limit.toFixed(2)})\nRun /budget to raise the limit or /new to start fresh.`,
+          "error",
+        );
+      }
+      ctx.abort();
+      return;
+    }
+
+    // Warn when approaching budget (80%+)
+    if (cost >= budget.limit * 0.8 && !budget.warned) {
+      budget.warned = true;
+      ctx.ui.notify(
+        `⚠️ Session cost $${cost.toFixed(2)} is approaching the $${budget.limit.toFixed(2)} budget.`,
+        "warning",
+      );
+    }
+  });
+
+  pi.on("session_start", async (_event, ctx) => {
+    const key = ctx.sessionManager.getSessionFile() ?? "__ephemeral__";
+    // Carry over existing limit but reset flags
+    const existing = sessionBudgets.get(key);
+    if (!existing) {
+      sessionBudgets.set(key, { limit: DEFAULT_BUDGET, warned: false, aborted: false });
+    } else {
+      existing.warned = false;
+      existing.aborted = false;
+    }
+  });
+
+  pi.on("session_shutdown", async (_event, ctx) => {
+    const key = ctx.sessionManager.getSessionFile() ?? "__ephemeral__";
+    sessionBudgets.delete(key);
+  });
+
+  // /budget command — set, check, or disable the cost limit
+  pi.registerCommand("budget", {
+    description: "Set or show the per-session cost budget limit",
+    handler: async (args, ctx) => {
+      const budget = getBudget(ctx.sessionManager.getSessionFile());
+      const cost = calcSessionCost(ctx);
+
+      if (!args || args.trim() === "") {
+        ctx.ui.notify(
+          `Session budget: $${budget.limit === Infinity ? "∞ (disabled)" : budget.limit.toFixed(2)}\nCurrent cost: $${cost.toFixed(2)}${isFinite(budget.limit) ? `\n${budgetStatusStr(cost, budget.limit)}` : ""}`,
+          "info",
+        );
+        return;
+      }
+
+      const input = args.trim().toLowerCase();
+      if (input === "off" || input === "disable" || input === "none" || input === "∞") {
+        budget.limit = Infinity;
+        budget.warned = false;
+        budget.aborted = false;
+        ctx.ui.notify("Budget disabled — no cost limit.", "info");
+        return;
+      }
+
+      const newLimit = parseFloat(input.replace(/[\$\s]/g, ""));
+      if (isNaN(newLimit) || newLimit <= 0) {
+        ctx.ui.notify(`Invalid budget: "${args}". Use a positive number (e.g., /budget 10) or 'off'.`, "error");
+        return;
+      }
+
+      budget.limit = newLimit;
+      budget.warned = false;
+      budget.aborted = false;
+      ctx.ui.notify(
+        `Budget set to $${newLimit.toFixed(2)} per session.\nCurrent cost: $${cost.toFixed(2)}`,
+        "success",
+      );
+    },
+  });
+
   // After session starts, pre-fetch all models if already logged in so
   // modifyModels has data to work with. Also fetch and display credits.
   pi.on("session_start", async (_event, ctx) => {
@@ -801,6 +926,22 @@ export default async function (pi: ExtensionAPI) {
           // Inject credits inline on the main stats line
           const creditsStatus = footerData.getExtensionStatuses().get("kilo-credits");
           if (creditsStatus) statsParts.push(creditsStatus);
+
+          // Inject budget status into footer
+          const budget = getBudget(ctx.sessionManager.getSessionFile());
+          if (isFinite(budget.limit)) {
+            const bStr = budgetStatusStr(totalCost, budget.limit);
+            const bPct = (totalCost / budget.limit) * 100;
+            let bDisplay: string;
+            if (bPct > 90) {
+              bDisplay = theme.fg("error", `💲 ${bStr}`);
+            } else if (bPct > 70) {
+              bDisplay = theme.fg("warning", `💲 ${bStr}`);
+            } else {
+              bDisplay = theme.fg("dim", `💲 ${bStr}`);
+            }
+            statsParts.push(bDisplay);
+          }
 
           let statsLeft = statsParts.join(" ");
           let statsLeftWidth = visibleWidth(statsLeft);
