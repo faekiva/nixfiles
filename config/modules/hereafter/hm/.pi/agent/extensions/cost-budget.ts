@@ -110,7 +110,7 @@ export default function (pi: ExtensionAPI) {
     ctx.ui.setStatus("budget", display);
   });
 
-  // Reset flags on session switch
+  // Reset flags and show budget on session switch
   pi.on("session_start", async (_event, ctx) => {
     const key = ctx.sessionManager.getSessionFile() ?? "__ephemeral__";
     const existing = sessionBudgets.get(key);
@@ -119,6 +119,16 @@ export default function (pi: ExtensionAPI) {
     } else {
       existing.warned = false;
       existing.aborted = false;
+    }
+
+    // Show budget status from the start (before any messages)
+    if (ctx.hasUI) {
+      const budget = sessionBudgets.get(key)!;
+      if (isFinite(budget.limit)) {
+        const cost = calcSessionCost(ctx);
+        const bStr = budgetStatusStr(cost, budget.limit);
+        ctx.ui.setStatus("budget", ctx.ui.theme.fg("dim", `💲 ${bStr}`));
+      }
     }
   });
 
