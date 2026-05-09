@@ -137,41 +137,47 @@ Respond with a JSON object containing:
 
 Output ONLY the JSON. No markdown, no code fences, no explanation.`;
 
-async function callSentinelModel(
-  token: string,
-  thinkingBlocks: string[],
-): Promise<{ looping: boolean; confidence: number; reason: string } | null> {
+type LoopVerdict = { looping: boolean; confidence: number; reason: string };
+
+interface ModelCallConfig {
+  label: string;
+  model: string;
+  systemPrompt: string;
+  userContent: string;
+  maxTokens: number;
+  timeoutMs: number;
+}
+
+/** Generic LLM call — used by both the filter (Qwen) and judge (MiniMax). */
+async function callModel(cfg: ModelCallConfig, token: string): Promise<LoopVerdict | null> {
+  const tStart = Date.now();
   try {
-    const content = thinkingBlocks
-      .map((b, i) => `--- Thinking block ${i + 1} ---\n${b}`)
-      .join("\n\n");
-
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), SENTINEL_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), cfg.timeoutMs);
 
-    const response = await fetch(
-      `${KILO_GATEWAY_BASE}/v1/chat/completions`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: SENTINEL_MODEL,
-          messages: [
-            { role: "system", content: SENTINEL_SYSTEM_PROMPT },
-            { role: "user", content },
-          ],
-          max_tokens: 120,
-          temperature: 0,
-          response_format: { type: "json_object" },
-        }),
-        signal: controller.signal,
+    const tFetch = Date.now();
+    const response = await fetch(`${KILO_GATEWAY_BASE}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: "system", content: cfg.systemPrompt },
+          { role: "user", content: cfg.userContent },
+        ],
+        max_tokens: cfg.maxTokens,
+        temperature: 0,
+        response_format: { type: "json_object" },
+      }),
+      signal: controller.signal,
+    });
 
     clearTimeout(timeout);
+    const tDone = Date.now();
+    console.log(`[sentinel] ${cfg.label}: fetch=${tFetch - tStart}ms total=${tDone - tStart}ms status=${response.status}`);
 
     if (!response.ok) return null;
 
@@ -183,75 +189,55 @@ async function callSentinelModel(
     const result = extractJsonObject(text);
     if (!result) return null;
 
-    return JSON.parse(result) as {
-      looping: boolean;
-      confidence: number;
-      reason: string;
-    };
-  } catch {
+    return JSON.parse(result) as LoopVerdict;
+  } catch (err) {
+    const tDone = Date.now();
+    console.log(`[sentinel] ${cfg.label}: ERROR after ${tDone - tStart}ms: ${err}`);
     return null;
   }
 }
 
-async function callJudgeModel(
+function formatThinkingBlocks(blocks: string[]): string {
+  return blocks.map((b, i) => `--- Thinking block ${i + 1} ---\n${b}`).join("\n\n");
+}
+
+function callSentinelModel(
   token: string,
   thinkingBlocks: string[],
-  sentinelResult: { looping: boolean; confidence: number; reason: string },
-): Promise<{ looping: boolean; confidence: number; reason: string } | null> {
-  try {
-    const content =
-      `The filter model flagged this as a loop. Its analysis:\n\n` +
-      `${sentinelResult.reason}\n\n` +
-      `--- Agent thinking blocks ---\n` +
-      thinkingBlocks
-        .map((b, i) => `--- Thinking block ${i + 1} ---\n${b}`)
-        .join("\n\n");
+): Promise<LoopVerdict | null> {
+  return callModel(
+    {
+      label: "filter",
+      model: SENTINEL_MODEL,
+      systemPrompt: SENTINEL_SYSTEM_PROMPT,
+      userContent: formatThinkingBlocks(thinkingBlocks),
+      maxTokens: 120,
+      timeoutMs: SENTINEL_TIMEOUT_MS,
+    },
+    token,
+  );
+}
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), JUDGE_TIMEOUT_MS);
-
-    const response = await fetch(
-      `${KILO_GATEWAY_BASE}/v1/chat/completions`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: JUDGE_MODEL,
-          messages: [
-            { role: "system", content: JUDGE_SYSTEM_PROMPT },
-            { role: "user", content },
-          ],
-          max_tokens: 150,
-          temperature: 0,
-          response_format: { type: "json_object" },
-        }),
-        signal: controller.signal,
-      },
-    );
-
-    clearTimeout(timeout);
-
-    if (!response.ok) return null;
-
-    const data = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-    const text = data.choices?.[0]?.message?.content ?? "";
-
-    const result = extractJsonObject(text);
-    if (!result) return null;
-
-    return JSON.parse(result) as {
-      looping: boolean;
-      confidence: number;
-      reason: string;
-    };
-  } catch {
-    return null;
-  }
+function callJudgeModel(
+  token: string,
+  thinkingBlocks: string[],
+  sentinelResult: LoopVerdict,
+): Promise<LoopVerdict | null> {
+  return callModel(
+    {
+      label: "judge",
+      model: JUDGE_MODEL,
+      systemPrompt: JUDGE_SYSTEM_PROMPT,
+      userContent:
+        `The filter model flagged this as a loop. Its analysis:\n\n` +
+        `${sentinelResult.reason}\n\n` +
+        `--- Agent thinking blocks ---\n` +
+        formatThinkingBlocks(thinkingBlocks),
+      maxTokens: 150,
+      timeoutMs: JUDGE_TIMEOUT_MS,
+    },
+    token,
+  );
 }
 
 /**
@@ -339,6 +325,12 @@ async function checkForLoop(ctx: ExtensionContext) {
   const thinkingBlocks = extractThinkingBlocks(entries).slice(-MAX_THINKING_HISTORY);
   const toolCalls = extractToolCalls(entries);
 
+  const t0 = Date.now();
+  ctx.ui.setStatus(
+    "sentinel",
+    ctx.ui.theme.fg("dim", `🛡️ check start turn=${consecutiveAssistant} tb=${thinkingBlocks.length} tc=${toolCalls.length}`),
+  );
+
   // Skip early turns — not enough data yet
   if (consecutiveAssistant < MIN_TURNS_BEFORE_CHECK) return;
   if (thinkingBlocks.length < 2 && consecutiveAssistant < MIN_TURNS_BEFORE_CHECK) return;
@@ -348,6 +340,12 @@ async function checkForLoop(ctx: ExtensionContext) {
   const abortThreshold = state.strict ? STRICT_AUTO_ABORT_THRESHOLD : AUTO_ABORT_THRESHOLD;
   const sentinelThreshold = state.strict ? STRICT_SENTINEL_TRIGGER : SENTINEL_TRIGGER;
   const breakdown = calcHeuristicScore(thinkingBlocks, consecutiveAssistant, toolCalls, entries);
+
+  const t1 = Date.now();
+  ctx.ui.setStatus(
+    "sentinel",
+    ctx.ui.theme.fg("dim", `🛡️ heuristic=${breakdown.total.toFixed(2)} (${t1 - t0}ms)`),
+  );
 
   // Auto-abort: heuristic is obvious, no LLM needed
   if (breakdown.total >= abortThreshold) {
@@ -366,9 +364,10 @@ async function checkForLoop(ctx: ExtensionContext) {
   // Below sentinel trigger (plus any penalty from prior judge denials) — nothing to do
   const effectiveThreshold = sentinelThreshold + state.heuristicPenalty;
   if (breakdown.total < effectiveThreshold) {
+    const tEnd = Date.now();
     ctx.ui.setStatus(
       "sentinel",
-      ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)}`),
+      ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} < ${effectiveThreshold.toFixed(2)} (${tEnd - t0}ms)`),
     );
     return;
   }
@@ -377,28 +376,42 @@ async function checkForLoop(ctx: ExtensionContext) {
   const cred = ctx.modelRegistry.authStorage.get("kilo");
   if (cred?.type !== "oauth") return;
 
+  const tPreSentinel = Date.now();
+  ctx.ui.setStatus(
+    "sentinel",
+    ctx.ui.theme.fg("yellow", `🛡️ calling filter… (${tPreSentinel - t0}ms)`),
+  );
+
   state.sentinelCalls++;
   const sentinelResult = await callSentinelModel(
     cred.access,
     thinkingBlocks.slice(-5),
   );
+  const tPostSentinel = Date.now();
 
   // Filter model says no loop — we're clear
   if (!sentinelResult?.looping || sentinelResult.confidence < 0.55) {
     ctx.ui.setStatus(
       "sentinel",
-      ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by filter)`),
+      ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} filter=${tPostSentinel - tPreSentinel}ms`),
     );
     return;
   }
 
   // Filter model says yes — escalate to the judge for a final ruling
+  const tPreJudge = Date.now();
+  ctx.ui.setStatus(
+    "sentinel",
+    ctx.ui.theme.fg("red", `🛡️ calling judge… (${tPreJudge - t0}ms)`),
+  );
+
   state.judgeCalls++;
   const judgeResult = await callJudgeModel(
     cred.access,
     thinkingBlocks.slice(-5),
     sentinelResult,
   );
+  const tPostJudge = Date.now();
 
   if (judgeResult?.looping && judgeResult.confidence >= 0.55) {
     state.loopDetected = true;
@@ -408,6 +421,7 @@ async function checkForLoop(ctx: ExtensionContext) {
         `Judge (M2.7): ${judgeResult.reason}\n` +
         `Heuristic score: ${breakdown.total.toFixed(2)} | ` +
         `Judge confidence: ${(judgeResult.confidence * 100).toFixed(0)}%\n` +
+        `Judge took: ${tPostJudge - tPreJudge}ms\n` +
         `Sentinel calls: ${state.sentinelCalls} | Judge calls: ${state.judgeCalls}\n\n` +
         `Aborting to prevent runaway costs. Run /sentinel reset to re-enable.`,
       "error",
@@ -421,7 +435,7 @@ async function checkForLoop(ctx: ExtensionContext) {
   state.heuristicPenalty += 0.1;
   ctx.ui.setStatus(
     "sentinel",
-    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} (cleared by judge, penalty +${state.heuristicPenalty.toFixed(1)})`),
+    ctx.ui.theme.fg("dim", `🛡️ ${breakdown.total.toFixed(2)} judge=${tPostJudge - tPreJudge}ms cleared, penalty +${state.heuristicPenalty.toFixed(1)}`),
   );
 }
 
