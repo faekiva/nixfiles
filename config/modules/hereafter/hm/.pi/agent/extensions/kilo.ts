@@ -282,6 +282,19 @@ function getKiloModelCompat(
     : undefined;
 }
 
+/**
+ * Get the x-kilocode-mode header for kilo-auto/* models.
+ * - frontier routes to sonnet for "code" mode, opus for "plan" mode
+ * - other auto models default to "code"
+ * - non-auto models don't need a mode header
+ */
+function getKiloModeHeaders(id: string): Record<string, string> | undefined {
+  if (!id.startsWith("kilo-auto/")) return undefined;
+  // frontier-think is a synthetic model we register to route to opus via plan mode
+  if (id === "kilo-auto/frontier-think") return { "x-kilocode-mode": "plan" };
+  return { "x-kilocode-mode": "code" };
+}
+
 function mapOpenRouterModel(m: OpenRouterModel): ProviderModelConfig {
   const inputModalities = m.architecture?.input_modalities ?? ["text"];
   const supportsImages = inputModalities.includes("image");
@@ -305,6 +318,7 @@ function mapOpenRouterModel(m: OpenRouterModel): ProviderModelConfig {
     },
     contextWindow: m.context_length,
     maxTokens: maxTokens,
+    headers: getKiloModeHeaders(m.id),
     compat: getKiloModelCompat(m),
   };
 }
@@ -387,12 +401,24 @@ const KILO_AUTO_COMPAT: ProviderModelConfig["compat"] = {
 const KILO_AUTO_MODELS: ProviderModelConfig[] = [
   {
     id: "kilo-auto/frontier",
-    name: "Auto Frontier",
+    name: "Auto Frontier (code)",
+    reasoning: true,
+    input: ["text", "image"],
+    contextWindow: 1000000,
+    maxTokens: 128000,
+    cost: { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 3.75 },
+    headers: { "x-kilocode-mode": "code" },
+    compat: KILO_AUTO_COMPAT,
+  },
+  {
+    id: "kilo-auto/frontier-think",
+    name: "Auto Frontier (think)",
     reasoning: true,
     input: ["text", "image"],
     contextWindow: 1000000,
     maxTokens: 128000,
     cost: { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 },
+    headers: { "x-kilocode-mode": "plan" },
     compat: KILO_AUTO_COMPAT,
   },
   {
@@ -403,6 +429,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 1000000,
     maxTokens: 65536,
     cost: { input: 0.325, output: 1.95, cacheRead: 0.0325, cacheWrite: 0.40625 },
+    headers: { "x-kilocode-mode": "code" },
     compat: KILO_AUTO_COMPAT,
   },
   {
@@ -413,6 +440,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 262144,
     maxTokens: 32768,
     cost: { input: 0.05, output: 0.4, cacheRead: 0.005, cacheWrite: 0 },
+    headers: { "x-kilocode-mode": "code" },
     compat: KILO_AUTO_COMPAT,
   },
   {
@@ -423,6 +451,7 @@ const KILO_AUTO_MODELS: ProviderModelConfig[] = [
     contextWindow: 256000,
     maxTokens: 10000,
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    headers: { "x-kilocode-mode": "code" },
     compat: KILO_AUTO_COMPAT,
   },
 ];
@@ -432,11 +461,19 @@ function loadModelCache(): ProviderModelConfig[] {
     const raw = fs.readFileSync(CACHE_PATH, "utf8");
     const parsed = JSON.parse(raw) as ProviderModelConfig[];
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Patch stale cache entries that are missing supportsDeveloperRole — this
-      // can happen if the cache was written before this compat flag was added.
+      // Patch stale cache entries that are missing supportsDeveloperRole or
+      // x-kilocode-mode headers — this can happen if the cache was written
+      // before these fields were added.
       return parsed.map((m) => {
-        if (m.compat?.supportsDeveloperRole === false) return m;
-        return { ...m, compat: { ...m.compat, supportsDeveloperRole: false } };
+        const needsCompat = m.compat?.supportsDeveloperRole !== false;
+        const expectedHeaders = getKiloModeHeaders(m.id);
+        const needsHeaders = expectedHeaders && !m.headers?.["x-kilocode-mode"];
+        if (!needsCompat && !needsHeaders) return m;
+        return {
+          ...m,
+          ...(needsHeaders ? { headers: { ...m.headers, ...expectedHeaders } } : {}),
+          ...(needsCompat ? { compat: { ...m.compat, supportsDeveloperRole: false } } : {}),
+        };
       });
     }
   } catch {

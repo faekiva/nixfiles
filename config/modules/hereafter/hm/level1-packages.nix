@@ -23,6 +23,7 @@ in
     ./direnv.nix
     ./git.nix
     ./go.nix
+    ./tmux.nix
   ];
 
   home.packages = [
@@ -33,7 +34,6 @@ in
     pkgs.bat
     pkgs.fzf
     pkgs.go-task
-    pkgs.tmux
     pkgs.gh
     inputs.git-wt.packages.${pkgs.system}.default
     pkgs.kubectl
