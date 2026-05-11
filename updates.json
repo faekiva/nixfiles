@@ -13,6 +13,12 @@
       "repo": "skyhook-io/radar"
     },
     {
+      "name": "pack",
+      "type": "github-release",
+      "file": "config/packages/pack.nix",
+      "repo": "buildpacks/pack"
+    },
+    {
       "name": "go",
       "type": "go-stable",
       "file": "config/modules/hereafter/hm/go.nix"

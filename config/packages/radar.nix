@@ -4,15 +4,15 @@
   fetchurl,
 }:
 let
-  version = "1.5.11";
+  version = "1.5.13";
   assets = {
     x86_64-darwin = {
       url = "https://github.com/skyhook-io/radar/releases/download/v${version}/radar_v${version}_darwin_amd64.tar.gz";
-      hash = "sha256-8leFo8uD/pEnn/IGuVuy029PXxJHtKxbCdmNzyc8ulY=";
+      hash = "sha256-V2X2hpIHIdFUfWTrOBfKEoSNYWSEuU+9lF7nwtZoPUk=";
     };
     aarch64-darwin = {
       url = "https://github.com/skyhook-io/radar/releases/download/v${version}/radar_v${version}_darwin_arm64.tar.gz";
-      hash = "sha256-lPCsLVuXXb1MTrETA3aUFudzMlGDkilOVVMSPeTKT9I=";
+      hash = "sha256-zeI35UCrCgbyROTbFpElR15jafTm19PN9qwiS/zBKXA=";
     };
   };
   asset =

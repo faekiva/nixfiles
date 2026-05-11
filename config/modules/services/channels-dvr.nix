@@ -6,6 +6,7 @@
   imports = [ ./compose2nix-common.nix ];
 
   networking.firewall.allowedTCPPorts = [ 8089 ];
+  networking.firewall.allowedUDPPorts = [ 5004 65001 ];
 
   # Ensure mount directories exist before the container starts
   systemd.tmpfiles.rules = [
