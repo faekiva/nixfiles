@@ -1,5 +1,5 @@
 {
-  description = "A basic flake with a shell";
+  description = "The flake for this repo only (not my config as a whole)";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
   inputs.systems.url = "github:nix-systems/default";
   inputs.flake-utils = {
