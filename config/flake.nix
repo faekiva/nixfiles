@@ -7,6 +7,9 @@
 
     nix-darwin.url = "github:nix-darwin/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
+    determinate.inputs.nixpkgs.follows = "nixpkgs";
     # Home manager
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -90,6 +93,7 @@
               };
             };
             modules = [
+              inputs.determinate.nixosModules.default
               ./modules/hereafter/nix-settings.nix
               ./hosts/NixOS/${host}/configuration.nix
               home-manager.nixosModules.home-manager
@@ -109,7 +113,8 @@
               };
             };
             modules = [
-              ./modules/hereafter/nix-settings.nix
+              inputs.determinate.darwinModules.default
+              ./modules/hereafter/nix-settings-darwin.nix
               ./modules/hereafter/darwin-overlays.nix
               ./hosts/Darwin/${host}/configuration.nix
               home-manager.darwinModules.home-manager
