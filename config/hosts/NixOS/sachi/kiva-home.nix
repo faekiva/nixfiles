@@ -8,6 +8,7 @@
   home.packages = [
     pkgs.ffmpeg-full
     pkgs.sunshine
+    (pkgs.callPackage "${inputs.flakeRoot}/packages/spotiflac.nix" { })
   ];
 
   imports = [
