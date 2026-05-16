@@ -87,6 +87,5 @@
   # k8s API server — intranet-accessible on all interfaces
   networking.firewall.allowedTCPPorts = [ 6443 ];
 
-  # flannel VXLAN — single-node cluster; all inter-pod traffic stays local
-  networking.firewall.interfaces."lo".allowedUDPPorts = [ 8472 ];
+  networking.firewall.allowedUDPPorts = [ 8472 ];
 }
