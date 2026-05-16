@@ -19,6 +19,25 @@
     ];
   };
 
+  # Write a k3s config snippet with the tailscale IP before k3s starts.
+  # k3s merges /etc/rancher/k3s/config.yaml with CLI flags automatically.
+  systemd.services.k3s-node-ip = {
+    description = "Write k3s node-ip from tailscale";
+    before = [ "k3s.service" ];
+    requiredBy = [ "k3s.service" ];
+    after = [ "tailscaled.service" ];
+    requires = [ "tailscaled.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "k3s-node-ip" ''
+        mkdir -p /etc/rancher/k3s
+        echo "node-ip: $(${pkgs.tailscale}/bin/tailscale ip -4)" \
+          > /etc/rancher/k3s/config.yaml
+      '';
+    };
+  };
+
   # ── iSCSI initiator ────────────────────────────────────────────────────────
   # Longhorn exposes volumes as iSCSI targets; iscsid must be running on the
   # node before volumes can attach.
