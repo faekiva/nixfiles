@@ -33,8 +33,10 @@
       RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "k3s-node-ip" ''
         mkdir -p /etc/rancher/k3s
-        echo "node-ip: $(${pkgs.tailscale}/bin/tailscale ip -4)" \
-          > /etc/rancher/k3s/config.yaml
+        until IP=$(${pkgs.tailscale}/bin/tailscale ip -4 2>/dev/null) && [ -n "$IP" ]; do
+          sleep 1
+        done
+        echo "node-ip: $IP" > /etc/rancher/k3s/config.yaml
       '';
     };
   };
