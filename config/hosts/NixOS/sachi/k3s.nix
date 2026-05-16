@@ -13,6 +13,7 @@
     role = "server";
     extraFlags = toString [
       "--node-name=sacchan"
+      "--flannel-iface=tailscale0"
       "--disable=traefik"
       "--disable=servicelb"
       "--disable=local-storage"
