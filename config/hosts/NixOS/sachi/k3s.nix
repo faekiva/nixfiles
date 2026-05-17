@@ -88,4 +88,12 @@
   networking.firewall.allowedTCPPorts = [ 6443 ];
 
   networking.firewall.allowedUDPPorts = [ 8472 ];
+
+  # Clamp TCP MSS to path MTU on forwarded traffic so that pods (which may
+  # advertise a stale MSS based on their eth0 MTU) don't cause silent stalls
+  # when the server sends segments larger than cni0 can forward (1230 bytes
+  # due to VXLAN overhead on top of tailscale0's 1280 MTU).
+  networking.firewall.extraForwardRules = ''
+    tcp flags & (fin|syn|rst|ack) == syn tcp option maxseg size set rt mtu
+  '';
 }
