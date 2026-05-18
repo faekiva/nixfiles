@@ -4,7 +4,7 @@
   fetchurl,
 }:
 let
-  version = "0.40.4";
+  version = "0.40.6";
   assets = {
     x86_64-darwin = {
       url = "https://github.com/buildpacks/pack/releases/download/v${version}/pack-v0.40.4-macos.tgz";

@@ -21,7 +21,7 @@
 {
   home.packages = [
     inputs.llm-agents.packages.${pkgs.system}.claude-code
-    (pkgs.rustPlatform.buildRustPackage rec {
+    (pkgs.rustPlatform.buildRustPackage  {
       pname = "decapod";
       version = "0.47.27";
 
@@ -54,7 +54,7 @@
         mainProgram = "decapod";
       };
     })
-    # cco
+    inputs.llm-agents.packages.${pkgs.system}.rtk
     # kilocode-with-alias
     inputs.llm-agents.packages.${pkgs.system}.pi
   ];
