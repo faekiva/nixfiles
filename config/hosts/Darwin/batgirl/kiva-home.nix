@@ -3,9 +3,6 @@
   pkgs,
   ...
 }:
-let
-  pack = pkgs.callPackage "${inputs.flakeRoot}/packages/pack.nix" {};
-in 
 {
   home.stateVersion = "25.11";
   imports = [
@@ -17,6 +14,5 @@ in
     pkgs.nickel
     pkgs.nls
     pkgs.ffmpeg-full
-    pack
   ];
 }

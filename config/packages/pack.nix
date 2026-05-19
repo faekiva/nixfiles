@@ -7,12 +7,12 @@ let
   version = "0.40.6";
   assets = {
     x86_64-darwin = {
-      url = "https://github.com/buildpacks/pack/releases/download/v${version}/pack-v0.40.4-macos.tgz";
-      hash = "sha256-ae/E+VqudWd2MssuXxyQiB4rpppVmnHT5pcyu8DXizM=";
+      url = "https://github.com/buildpacks/pack/releases/download/v${version}/pack-v${version}-macos.tgz";
+      hash = "sha256-AUyNj6ar7u5yhZTZ2v9TjeIkwf5WObUFeme3q0hE8P4=";
     };
     aarch64-darwin = {
-      url = "https://github.com/buildpacks/pack/releases/download/v${version}/pack-v0.40.4-macos-arm64.tgz";
-      hash = "sha256-nl0VutuNf5KP0jfo4EI+6iOh37O7v0Cj4FyViOJDhIw=";
+      url = "https://github.com/buildpacks/pack/releases/download/v${version}/pack-v${version}-macos-arm64.tgz";
+      hash = "sha256-kJb+0ZCPKVeah8BfRRUzKt6xGncQGvq46DZZf9sKsao=";
     };
   };
   asset =

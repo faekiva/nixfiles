@@ -7,6 +7,7 @@
 let
   rad = pkgs.callPackage "${inputs.flakeRoot}/packages/rad.nix" { };
   radar = pkgs.callPackage "${inputs.flakeRoot}/packages/radar.nix" { };
+  pack = pkgs.callPackage "${inputs.flakeRoot}/packages/pack.nix" { };
   # Shadow the system nix zsh on Darwin: the prebuilt binary (built against
   # an older Darwin SDK) hangs on $(...) under interactive mode. Apple's
   # /bin/zsh is unaffected. Home-manager profile beats system profile in
@@ -49,6 +50,7 @@ in
     pkgs.mods
     pkgs.postgresql
     rad
+    pack
   ]
   ++ lib.optional pkgs.stdenv.isDarwin pkgs.coreutils
   ++ lib.optional pkgs.stdenv.isDarwin zshSystem

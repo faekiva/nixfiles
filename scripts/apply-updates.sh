@@ -67,14 +67,16 @@ create_github_release_skeleton() {
     echo "  version = \"PLACEHOLDER\";"
     echo "  assets = {"
     if [[ -n "$x64_asset" ]]; then
+      local x64_asset_tmpl="${x64_asset//${version}/\${version}}"
       echo "    x86_64-darwin = {"
-      echo "      url = \"https://github.com/${repo}/releases/download/v\${version}/${x64_asset}\";"
+      echo "      url = \"https://github.com/${repo}/releases/download/v\${version}/${x64_asset_tmpl}\";"
       echo "      hash = \"\";"
       echo "    };"
     fi
     if [[ -n "$arm64_asset" ]]; then
+      local arm64_asset_tmpl="${arm64_asset//${version}/\${version}}"
       echo "    aarch64-darwin = {"
-      echo "      url = \"https://github.com/${repo}/releases/download/v\${version}/${arm64_asset}\";"
+      echo "      url = \"https://github.com/${repo}/releases/download/v\${version}/${arm64_asset_tmpl}\";"
       echo "      hash = \"\";"
       echo "    };"
     fi
@@ -124,7 +126,11 @@ while read -r pkg; do
   name=$(jq -r '.name' <<<"$pkg")
   type=$(jq -r '.type' <<<"$pkg")
   file=$(jq -r '.file' <<<"$pkg")
-  version=$(jq -r --arg name "$name" '.[$name] // empty' "$LOCK")
+  if [[ -f "$LOCK" ]]; then
+    version=$(jq -r --arg name "$name" '.[$name] // empty' "$LOCK")
+  else
+    version=""
+  fi
 
   if [[ -z "$version" ]]; then
     echo "$name: no lock entry, skipping (run refresh-updates.sh)" >&2
